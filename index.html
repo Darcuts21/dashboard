@@ -3,240 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucien OS - Ultimate</title>
+    <title>Lucien OS - Redesign</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
-        .page { display: none; animation: fadeIn 0.4s ease-out; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --bg: #05070a;
+            --card: rgba(17, 24, 39, 0.7);
+            --accent: #3b82f6;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: #f3f4f6;
+            background-image: radial-gradient(circle at top right, #1e293b 0%, #05070a 50%);
+            min-height: 100-vh;
+        }
+
+        .bento-card {
+            background: var(--card);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 1.5rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .bento-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .page { display: none; animation: slideUp 0.4s ease-out; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .tab-btn.active { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: #3b82f6; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-link.active { color: var(--accent); background: rgba(59, 130, 246, 0.1); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row">
+<body class="p-4 md:p-8">
 
-    <nav class="w-full md:w-20 lg:w-64 glass border-r border-slate-800 p-4 flex flex-col gap-8">
-        <div class="hidden lg:block text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent px-4">
-            LUCIEN OS
-        </div>
-        <div class="flex md:flex-col gap-2">
-            <button onclick="showPage('home')" class="tab-btn active w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition hover:bg-slate-800">
-                <i class="fa-solid fa-house"></i> <span class="hidden lg:block">Dashboard</span>
-            </button>
-            <button onclick="showPage('calendar')" class="tab-btn w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition hover:bg-slate-800">
-                <i class="fa-solid fa-calendar-days"></i> <span class="hidden lg:block">Calendrier</span>
-            </button>
-            <button onclick="showPage('finance')" class="tab-btn w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition hover:bg-slate-800">
-                <i class="fa-solid fa-wallet"></i> <span class="hidden lg:block">Finances</span>
-            </button>
-            <button onclick="showPage('links')" class="tab-btn w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition hover:bg-slate-800">
-                <i class="fa-solid fa-bookmark"></i> <span class="hidden lg:block">Favoris</span>
-            </button>
-        </div>
-        <div class="mt-auto hidden md:block p-4 glass rounded-2xl text-center">
-            <div id="side-clock" class="text-sm font-bold text-blue-400">00:00</div>
-        </div>
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full border border-white/10 flex gap-8 z-50 bg-black/50 backdrop-blur-lg">
+        <button onclick="showPage('home')" class="nav-link active hover:text-blue-400 transition"><i class="fa-solid fa-grid-2 text-xl"></i></button>
+        <button onclick="showPage('todo')" class="nav-link hover:text-blue-400 transition"><i class="fa-solid fa-list-check text-xl"></i></button>
+        <button onclick="showPage('calendar')" class="nav-link hover:text-blue-400 transition"><i class="fa-solid fa-calendar text-xl"></i></button>
+        <button onclick="showPage('finance')" class="nav-link hover:text-blue-400 transition"><i class="fa-solid fa-wallet text-xl"></i></button>
+        <button onclick="showPage('links')" class="nav-link hover:text-blue-400 transition"><i class="fa-solid fa-link text-xl"></i></button>
     </nav>
 
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+    <div class="max-w-6xl mx-auto mb-24">
         
-        <section id="home" class="page active space-y-6">
-            <div class="flex justify-between items-center">
-                <h2 class="text-3xl font-bold italic text-slate-200">Hello Lucien.</h2>
-                <div id="weather" class="glass px-4 py-2 rounded-full text-xs text-slate-400 border-none">19°C • Ensoleillé</div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 glass p-6 rounded-3xl min-h-[300px]">
-                    <h3 class="font-bold mb-4 text-blue-400">Objectifs du moment</h3>
-                    <div id="task-list-home" class="space-y-3"></div>
-                </div>
-                <div class="glass p-6 rounded-3xl flex flex-col items-center justify-center">
-                    <div id="timer-display" class="text-5xl font-light mb-4 text-blue-400">25:00</div>
-                    <button onclick="toggleTimer()" id="btn-timer" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 px-8 py-2 rounded-full hover:bg-blue-600 hover:text-white transition">Start Focus</button>
-                </div>
-            </div>
-        </section>
+        <section id="home" class="page active">
+            <header class="mb-10">
+                <h1 id="greeting" class="text-4xl font-bold tracking-tight">Bonjour, Lucien.</h1>
+                <p id="full-date" class="text-slate-500 mt-2 capitalize"></p>
+            </header>
 
-        <section id="calendar" class="page space-y-6">
-            <div class="glass p-8 rounded-3xl">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-bold" id="cal-month-year">...</h2>
-                    <div class="flex gap-2">
-                        <button onclick="changeMonth(-1)" class="p-2 hover:text-blue-400"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button onclick="changeMonth(1)" class="p-2 hover:text-blue-400"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bento-card md:col-span-2 flex flex-col justify-between min-h-[200px] bg-gradient-to-br from-blue-600/20 to-transparent">
+                    <div>
+                        <span class="text-blue-400 text-xs font-bold uppercase tracking-widest">Activité actuelle</span>
+                        <h2 class="text-2xl font-semibold mt-2">Missions prioritaires</h2>
+                    </div>
+                    <div id="home-tasks-preview" class="space-y-2 mt-4 text-sm text-slate-300">
+                        </div>
+                </div>
+
+                <div class="bento-card flex flex-col items-center justify-center text-center">
+                    <div id="big-clock" class="text-5xl font-bold mb-2">00:00</div>
+                    <div class="text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-sun text-orange-400"></i> 
+                        <span>Grez-Neuville, 16°C</span>
                     </div>
                 </div>
-                <div class="grid grid-cols-7 gap-2 mb-2 text-center text-[10px] font-bold text-slate-500 uppercase">
-                    <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
-                </div>
-                <div id="calendar-grid" class="grid grid-cols-7 gap-2 h-96"></div>
-            </div>
-        </section>
 
-        <section id="links" class="page space-y-6">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold">Mes Raccourcis</h2>
-                <button onclick="toggleAddLink()" class="bg-blue-600 px-4 py-2 rounded-xl text-sm hover:bg-blue-500 transition">+ Ajouter</button>
-            </div>
-
-            <div id="link-form" class="hidden glass p-6 rounded-3xl border-dashed border-2 border-slate-700">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" id="link-name" placeholder="Nom (ex: GitHub)" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 outline-none">
-                    <input type="text" id="link-url" placeholder="URL (ex: https://...)" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 outline-none">
-                    <button onclick="saveNewLink()" class="bg-emerald-600 rounded-xl py-2 font-bold hover:bg-emerald-500 transition text-white">Enregistrer</button>
+                <div class="bento-card">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Focus</h3>
+                    <div id="timer-display" class="text-4xl font-mono font-bold mb-4">25:00</div>
+                    <button onclick="toggleTimer()" id="btn-timer" class="w-full bg-white text-black rounded-xl py-2 font-bold hover:bg-slate-200 transition">Start</button>
                 </div>
-            </div>
 
-            <div id="links-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div class="bento-card">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Finances</h3>
+                    <p class="text-3xl font-bold" id="home-total-finance">0,00 €</p>
+                    <p class="text-xs text-red-400 mt-2">Dépenses du mois</p>
                 </div>
-        </section>
 
-        <section id="finance" class="page space-y-6">
-            <div class="glass p-8 rounded-3xl">
-                <h3 class="font-bold mb-6">Suivi des Dépenses</h3>
-                <div class="flex gap-4 mb-8">
-                    <input type="text" id="exp-name" placeholder="Article..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2">
-                    <input type="number" id="exp-amount" placeholder="€" class="w-24 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2">
-                    <button onclick="addExpense()" class="bg-blue-600 px-6 rounded-xl hover:bg-blue-500">Ajouter</button>
-                </div>
-                <div id="expense-list" class="space-y-2"></div>
-                <div class="mt-8 pt-4 border-t border-slate-800 flex justify-between font-bold text-xl">
-                    <span>Total :</span>
-                    <span id="total-expense" class="text-red-400">0,00 €</span>
+                <div class="bento-card">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Favoris</h3>
+                    <div id="home-links-preview" class="flex gap-4 text-xl text-slate-400">
+                        </div>
                 </div>
             </div>
         </section>
 
-    </main>
+        <section id="todo" class="page max-w-2xl mx-auto">
+            <h2 class="text-3xl font-bold mb-8">Missions</h2>
+            <div class="bento-card mb-6">
+                <div class="flex gap-3">
+                    <input type="text" id="task-input" placeholder="Nouvelle tâche..." class="flex-1 bg-white/5 border-none rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addTask()" class="bg-blue-600 px-6 rounded-xl font-bold"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+            <div id="task-list" class="space-y-3">
+                </div>
+        </section>
+
+        <section id="calendar" class="page bento-card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="cal-month-year" class="text-xl font-bold"></h2>
+                <div class="flex gap-2">
+                    <button onclick="changeMonth(-1)" class="p-2 rounded-lg bg-white/5 hover:bg-white/10"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button onclick="changeMonth(1)" class="p-2 rounded-lg bg-white/5 hover:bg-white/10"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
+        </section>
+
+        <section id="finance" class="page bento-card max-w-2xl mx-auto">
+            <h2 class="text-xl font-bold mb-6">Gestion Financière</h2>
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="exp-name" placeholder="Dépense..." class="flex-1 bg-white/5 rounded-xl px-4 py-2">
+                <input type="number" id="exp-amount" placeholder="€" class="w-24 bg-white/5 rounded-xl px-4 py-2">
+                <button onclick="addExpense()" class="bg-emerald-600 px-4 rounded-xl">Ok</button>
+            </div>
+            <div id="expense-list" class="space-y-2"></div>
+        </section>
+
+        <section id="links" class="page">
+            <h2 class="text-xl font-bold mb-6">Mes Raccourcis</h2>
+            <div id="links-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            <div class="mt-8 bento-card border-dashed">
+                <h3 class="text-sm font-bold mb-4 text-slate-500">Ajouter un favori</h3>
+                <div class="flex flex-wrap gap-2">
+                    <input type="text" id="link-name" placeholder="Nom" class="bg-white/5 rounded-lg px-4 py-2 text-sm">
+                    <input type="text" id="link-url" placeholder="URL" class="bg-white/5 rounded-lg px-4 py-2 text-sm flex-1">
+                    <button onclick="saveNewLink()" class="bg-blue-600 px-4 py-2 rounded-lg text-sm">Ajouter</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
 
     <script>
         // NAVIGATION
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             event.currentTarget.classList.add('active');
-            if(pageId === 'home') renderTasksHome();
+            updateHomeView();
         }
 
-        // TIME
+        // TIME & DATE
         function updateTime() {
-            document.getElementById('side-clock').innerText = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const now = new Date();
+            document.getElementById('big-clock').innerText = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('full-date').innerText = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            
+            const hours = now.getHours();
+            let greet = "Bonsoir";
+            if(hours < 18) greet = "Bonjour";
+            if(hours < 5) greet = "Bonne nuit";
+            document.getElementById('greeting').innerText = `${greet}, Lucien.`;
         }
         setInterval(updateTime, 1000); updateTime();
 
-        // GESTION DES LIENS
-        let userLinks = JSON.parse(localStorage.getItem('user_links')) || [
-            { name: 'YouTube', url: 'https://youtube.com', icon: 'fa-youtube' },
-            { name: 'ChatGPT', url: 'https://chat.openai.com', icon: 'fa-robot' },
-            { name: 'GitHub', url: 'https://github.com', icon: 'fa-github' }
-        ];
-
-        function toggleAddLink() { document.getElementById('link-form').classList.toggle('hidden'); }
-
-        function saveNewLink() {
-            const name = document.getElementById('link-name').value;
-            let url = document.getElementById('link-url').value;
-            if(!name || !url) return;
-            if(!url.startsWith('http')) url = 'https://' + url;
-            userLinks.push({ name, url, icon: 'fa-link' });
-            localStorage.setItem('user_links', JSON.stringify(userLinks));
-            document.getElementById('link-name').value = '';
-            document.getElementById('link-url').value = '';
-            toggleAddLink();
-            renderLinks();
+        // TASKS
+        let tasks = JSON.parse(localStorage.getItem('tasks_v2')) || [];
+        function addTask() {
+            const input = document.getElementById('task-input');
+            if(!input.value) return;
+            tasks.push({ text: input.value, done: false });
+            input.value = '';
+            renderTasks();
+            updateHomeView();
         }
-
-        function deleteLink(index) {
-            userLinks.splice(index, 1);
-            localStorage.setItem('user_links', JSON.stringify(userLinks));
-            renderLinks();
-        }
-
-        function renderLinks() {
-            const grid = document.getElementById('links-grid');
-            grid.innerHTML = userLinks.map((l, i) => `
-                <div class="group relative glass p-6 rounded-3xl flex flex-col items-center justify-center hover:bg-slate-800/50 transition cursor-pointer border-none">
-                    <a href="${l.url}" target="_blank" class="flex flex-col items-center gap-3">
-                        <div class="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-xl text-blue-400">
-                            <i class="fa-solid ${l.icon || 'fa-link'}"></i>
-                        </div>
-                        <span class="text-xs font-semibold truncate w-full text-center">${l.name}</span>
-                    </a>
-                    <button onclick="deleteLink(${i})" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </button>
+        function toggleTask(i) { tasks[i].done = !tasks[i].done; renderTasks(); updateHomeView(); }
+        function deleteTask(i) { tasks.splice(i, 1); renderTasks(); updateHomeView(); }
+        
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            list.innerHTML = tasks.map((t, i) => `
+                <div class="bento-card flex items-center justify-between py-3">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i})" class="w-6 h-6 rounded-full border-white/10 bg-white/5 text-blue-500">
+                        <span class="${t.done?'line-through text-slate-500':''}">${t.text}</span>
+                    </div>
+                    <button onclick="deleteTask(${i})" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
             `).join('');
+            localStorage.setItem('tasks_v2', JSON.stringify(tasks));
         }
-        renderLinks();
 
-        // RE-USE TASKS FROM PREVIOUS SESSION
-        function renderTasksHome() {
-            const tasks = JSON.parse(localStorage.getItem('tasks_v2')) || [];
-            document.getElementById('task-list-home').innerHTML = tasks.length ? tasks.slice(0, 5).map(t => `
-                <div class="flex items-center gap-3 p-3 glass rounded-2xl border-none text-sm">
-                    <i class="fa-solid ${t.done ? 'fa-check text-emerald-500' : 'fa-circle-notch text-blue-500'}"></i>
-                    <span class="${t.done ? 'line-through text-slate-500' : ''}">${t.text}</span>
+        // ACCUEIL DYNAMIQUE
+        function updateHomeView() {
+            const preview = document.getElementById('home-tasks-preview');
+            const pending = tasks.filter(t => !t.done);
+            preview.innerHTML = pending.length ? pending.slice(0, 3).map(t => `
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                    <span>${t.text}</span>
                 </div>
-            `).join('') : '<p class="text-slate-500 text-sm italic">Aucune tâche en cours...</p>';
-        }
-        renderTasksHome();
+            `).join('') : '<p class="text-slate-500 italic">Tout est à jour !</p>';
 
-        // CALENDAR LOGIC (SAME AS BEFORE)
-        let currentCalDate = new Date();
+            const totalExp = expenses.reduce((sum, e) => sum + e.amount, 0);
+            document.getElementById('home-total-finance').innerText = totalExp.toFixed(2) + " €";
+
+            const linksPrev = document.getElementById('home-links-preview');
+            linksPrev.innerHTML = userLinks.slice(0, 5).map(l => `<a href="${l.url}" target="_blank"><i class="fa-solid ${l.icon || 'fa-link'}"></i></a>`).join('');
+        }
+
+        // CALENDAR (LOGIC RE-USED)
+        let curDate = new Date();
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
-            const title = document.getElementById('cal-month-year');
             grid.innerHTML = '';
-            const month = currentCalDate.getMonth();
-            const year = currentCalDate.getFullYear();
-            title.innerText = new Intl.DateTimeFormat('fr-FR', {month: 'long', year: 'numeric'}).format(currentCalDate);
-            const firstDay = new Date(year, month, 1).getDay() || 7;
-            const lastDate = new Date(year, month + 1, 0).getDate();
-            for(let i=1; i < firstDay; i++) grid.innerHTML += `<div></div>`;
-            for(let i=1; i <= lastDate; i++) {
-                const isToday = i === new Date().getDate() && month === new Date().getMonth() ? 'border-blue-500 bg-blue-500/10' : 'border-slate-800';
-                grid.innerHTML += `<div class="border ${isToday} rounded-xl flex items-center justify-center text-sm hover:bg-slate-800">${i}</div>`;
+            document.getElementById('cal-month-year').innerText = new Intl.DateTimeFormat('fr-FR', {month: 'long', year: 'numeric'}).format(curDate);
+            const first = new Date(curDate.getFullYear(), curDate.getMonth(), 1).getDay() || 7;
+            const last = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 0).getDate();
+            for(let i=1; i<first; i++) grid.innerHTML += '<div></div>';
+            for(let i=1; i<=last; i++) {
+                const isToday = i === new Date().getDate() && curDate.getMonth() === new Date().getMonth() ? 'bg-blue-600 font-bold' : 'bg-white/5';
+                grid.innerHTML += `<div class="p-3 rounded-xl ${isToday}">${i}</div>`;
             }
         }
-        function changeMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); }
-        renderCalendar();
+        function changeMonth(d) { curDate.setMonth(curDate.getMonth()+d); renderCalendar(); }
 
-        // POMODORO (SAME)
-        let timeLeft = 25 * 60; let timerId = null;
-        function toggleTimer() {
-            const btn = document.getElementById('btn-timer');
-            if (timerId) { clearInterval(timerId); timerId = null; btn.innerText = "Resume"; }
-            else { timerId = setInterval(() => {
-                timeLeft--; const m = Math.floor(timeLeft/60), s = timeLeft%60;
-                document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
-                if(timeLeft <= 0) { clearInterval(timerId); alert("Focus terminé !"); }
-            }, 1000); btn.innerText = "Pause"; }
-        }
-
-        // FINANCES (SAME)
+        // INITIALISATION
         let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        let userLinks = JSON.parse(localStorage.getItem('user_links')) || [{name:'GitHub', url:'https://github.com', icon:'fa-github'}];
+        
         function addExpense() {
             const n = document.getElementById('exp-name'), a = document.getElementById('exp-amount');
             if(!n.value || !a.value) return;
-            expenses.push({ name: n.value, amount: parseFloat(a.value) });
-            n.value = ''; a.value = ''; renderExpenses();
+            expenses.push({name:n.value, amount:parseFloat(a.value)});
+            n.value=''; a.value=''; renderExpenses(); updateHomeView();
         }
         function renderExpenses() {
-            const list = document.getElementById('expense-list');
-            const total = expenses.reduce((sum, e) => sum + e.amount, 0);
-            list.innerHTML = expenses.map(e => `<div class="flex justify-between p-3 glass rounded-xl border-none"><span>${e.name}</span><span class="text-red-400 font-bold">-${e.amount}€</span></div>`).join('');
-            document.getElementById('total-expense').innerText = total.toFixed(2) + " €";
+            document.getElementById('expense-list').innerHTML = expenses.map(e => `<div class="flex justify-between p-3 bg-white/5 rounded-xl text-sm"><span>${e.name}</span><span class="font-bold">-${e.amount}€</span></div>`).join('');
             localStorage.setItem('expenses', JSON.stringify(expenses));
         }
-        renderExpenses();
 
+        function saveNewLink() {
+            const n = document.getElementById('link-name'), u = document.getElementById('link-url');
+            if(!n.value || !u.value) return;
+            userLinks.push({name:n.value, url: u.value.startsWith('http')?u.value:'https://'+u.value, icon:'fa-link'});
+            n.value=''; u.value=''; renderLinks(); updateHomeView();
+            localStorage.setItem('user_links', JSON.stringify(userLinks));
+        }
+        function renderLinks() {
+            document.getElementById('links-grid').innerHTML = userLinks.map(l => `
+                <a href="${l.url}" target="_blank" class="bento-card flex flex-col items-center gap-2">
+                    <i class="fa-solid ${l.icon} text-2xl text-blue-400"></i>
+                    <span class="text-xs font-medium">${l.name}</span>
+                </a>
+            `).join('');
+        }
+
+        // TIMER
+        let timeLeft = 1500, timerId = null;
+        function toggleTimer() {
+            if(timerId) { clearInterval(timerId); timerId=null; document.getElementById('btn-timer').innerText="Start"; }
+            else { timerId = setInterval(()=>{ 
+                timeLeft--; 
+                let m=Math.floor(timeLeft/60), s=timeLeft%60;
+                document.getElementById('timer-display').innerText = `${m}:${s<10?'0'+s:s}`;
+            },1000); document.getElementById('btn-timer').innerText="Pause"; }
+        }
+
+        renderTasks(); renderCalendar(); renderExpenses(); renderLinks(); updateHomeView();
     </script>
 </body>
 </html>
