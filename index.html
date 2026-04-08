@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Dash - Lucien</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease; }
+        .glass:hover { border-color: rgba(59, 130, 246, 0.5); }
+        .habit-dot { width: 12px; height: 12px; border-radius: 4px; border: 1px solid #334155; cursor: pointer; }
+        .habit-dot.active { background: #3b82f6; border-color: #60a5fa; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div class="flex items-center gap-4">
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">ULTRA DASH</h1>
+                <div id="weather" class="text-sm text-slate-400"><i class="fa-solid fa-cloud-sun mr-2"></i>18°C Paris</div>
+            </div>
+            <div class="relative group">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500"></i>
+                <form action="https://www.google.com/search" method="GET" target="_blank">
+                    <input type="text" name="q" placeholder="Recherche Google..." class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl py-2 pl-12 pr-4 outline-none focus:ring-2 focus:ring-blue-500/50 transition">
+                </form>
+            </div>
+            <div class="text-right">
+                <div id="clock" class="text-4xl font-light tracking-tight">00:00:00</div>
+                <div id="current-date" class="text-xs uppercase tracking-widest text-slate-500"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            
+            <div class="space-y-6">
+                <div class="glass p-5 rounded-3xl">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Habitudes</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">Eau (2L)</span>
+                            <div class="flex gap-1">
+                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
+                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
+                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">Lecture</span>
+                            <div class="flex gap-1">
+                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
+                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-5 rounded-3xl">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Focus Audio</h3>
+                    <div class="flex justify-around">
+                        <button onclick="toggleSound('rain')" class="p-3 bg-slate-800 rounded-xl hover:text-blue-400"><i class="fa-solid fa-cloud-showers-heavy"></i></button>
+                        <button onclick="toggleSound('cafe')" class="p-3 bg-slate-800 rounded-xl hover:text-orange-400"><i class="fa-solid fa-mug-hot"></i></button>
+                        <button onclick="toggleSound('nature')" class="p-3 bg-slate-800 rounded-xl hover:text-emerald-400"><i class="fa-solid fa-leaf"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 space-y-6">
+                <div class="glass p-6 rounded-3xl min-h-[400px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Missions</h3>
+                        <span id="task-count" class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-lg">0 complétées</span>
+                    </div>
+                    <div class="flex gap-2 mb-6">
+                        <input type="text" id="task-input" placeholder="Ajouter une tâche..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition">
+                        <button onclick="addTask()" class="bg-blue-600 hover:bg-blue-500 p-3 rounded-xl transition shadow-lg shadow-blue-900/20"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <ul id="task-list" class="space-y-2"></ul>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="glass p-5 rounded-3xl text-center">
+                    <div id="timer-display" class="text-4xl font-bold text-blue-400 mb-4">25:00</div>
+                    <button onclick="toggleTimer()" id="btn-timer" class="w-full bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-sm font-semibold transition">Démarrer Focus</button>
+                </div>
+
+                <div class="glass p-5 rounded-3xl">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-orange-400 italic">Think Pad</h3>
+                    <textarea id="scratchpad" oninput="saveNotes()" class="w-full h-40 bg-transparent border-none outline-none resize-none text-sm text-slate-300 placeholder:text-slate-700" placeholder="Une idée ? Note-la ici..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audio-rain" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+    <script>
+        // HORLOGE & DATE
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR');
+            document.getElementById('current-date').innerText = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // TASKS AVEC PERSISTANCE
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            list.innerHTML = '';
+            tasks.forEach((t, i) => {
+                list.innerHTML += `
+                    <li class="flex items-center gap-3 bg-slate-900/40 p-3 rounded-xl border border-slate-800 group">
+                        <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${i})" class="w-5 h-5 rounded border-slate-700 bg-slate-800 text-blue-500 focus:ring-0 outline-none">
+                        <span class="flex-1 text-sm ${t.done ? 'line-through text-slate-600' : ''}">${t.text}</span>
+                        <button onclick="deleteTask(${i})" class="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-xmark"></i></button>
+                    </li>
+                `;
+            });
+            document.getElementById('task-count').innerText = `${tasks.filter(t => t.done).length} complétées`;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function addTask() {
+            const input = document.getElementById('task-input');
+            if (!input.value.trim()) return;
+            tasks.push({ text: input.value, done: false });
+            input.value = '';
+            renderTasks();
+        }
+
+        function toggleTask(i) { tasks[i].done = !tasks[i].done; renderTasks(); }
+        function deleteTask(i) { tasks.splice(i, 1); renderTasks(); }
+        renderTasks();
+
+        // NOTES
+        function saveNotes() { localStorage.setItem('notes', document.getElementById('scratchpad').value); }
+        document.getElementById('scratchpad').value = localStorage.getItem('notes') || "";
+
+        // FOCUS TIMER (POMODORO)
+        let timeLeft = 25 * 60;
+        let timerId = null;
+        function toggleTimer() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+                document.getElementById('btn-timer').innerText = "Reprendre";
+            } else {
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    let m = Math.floor(timeLeft/60), s = timeLeft%60;
+                    document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                    if (timeLeft <= 0) clearInterval(timerId);
+                }, 1000);
+                document.getElementById('btn-timer').innerText = "Pause";
+            }
+        }
+
+        // AUDIO TOGGLE (Simulation)
+        function toggleSound(type) {
+            alert("Mode " + type + " activé (nécessite des fichiers audio locaux)");
+        }
+    </script>
+</body>
+</html>
