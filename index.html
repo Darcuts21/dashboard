@@ -3,179 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucien OS - Ultimate</title>
+    <title>Lucien OS - Contextual Calendar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-        :root { --bg: #f8fafc; --text: #0f172a; --card: #ffffff; --border: #e2e8f0; --accent: #3b82f6; }
-        .dark { --bg: #020617; --text: #f1f5f9; --card: #0f172a; --border: #1e293b; --accent: #60a5fa; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: all 0.3s; }
-        .page { display: none; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; }
-        .nav-link.active { color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--accent); }
+        :root { --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --border: #d2d2d7; --accent: #0066cc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: all 0.3s ease; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .mode-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .has-event { border-bottom: 3px solid var(--accent) !important; font-weight: bold; }
     </style>
 </head>
-<body class="max-w-6xl mx-auto px-4 py-6">
+<body class="min-h-screen flex flex-col md:flex-row">
 
-    <nav class="flex flex-wrap justify-between items-center mb-8 gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
-        <div class="flex gap-6 text-sm uppercase tracking-widest font-medium">
-            <button onclick="showPage('home')" class="nav-link active" id="link-home">Dashboard</button>
-            <button onclick="showPage('calendar')" class="nav-link" id="link-calendar">Calendrier</button>
-            <button onclick="showPage('finance')" class="nav-link" id="link-finance">Finances</button>
-            <button onclick="showPage('journal')" class="nav-link" id="link-journal">Journal</button>
-            <button onclick="showPage('tools')" class="nav-link" id="link-tools">Outils</button>
+    <aside class="w-full md:w-64 border-right p-6 flex flex-col gap-8 bg-white/50 backdrop-blur-md border-r border-gray-200">
+        <div class="flex p-1 bg-gray-200 rounded-lg">
+            <button onclick="switchContext('work')" id="ctx-work" class="mode-btn flex-1 py-1.5 text-xs font-bold rounded-md active">TRAVAIL</button>
+            <button onclick="switchContext('perso')" id="ctx-perso" class="mode-btn flex-1 py-1.5 text-xs font-bold rounded-md">PERSO</button>
         </div>
-        <button onclick="showPage('settings')" class="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition">
-            <i class="fa-solid fa-gear"></i>
-        </button>
-    </nav>
+        <nav class="flex flex-col gap-2 text-sm text-gray-500">
+            <button onclick="showPage('home')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"><i class="fa-solid fa-house"></i> Accueil</button>
+            <button onclick="showPage('calendar')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"><i class="fa-solid fa-calendar"></i> Calendrier</button>
+            <button onclick="showPage('todo')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"><i class="fa-solid fa-list-check"></i> To-Do</button>
+            <button onclick="showPage('finance')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"><i class="fa-solid fa-wallet"></i> Comptes</button>
+            <button onclick="showPage('files')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"><i class="fa-solid fa-folder"></i> Dossiers</button>
+        </nav>
+        <div class="mt-auto pt-6 border-t border-gray-200">
+            <div id="clock" class="text-2xl font-light">00:00</div>
+            <div id="date-label" class="text-[10px] text-gray-400 uppercase tracking-widest mt-1">...</div>
+        </div>
+    </aside>
 
-    <main>
-        <section id="home" class="page active space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="card md:col-span-2 flex flex-col justify-center py-12">
-                    <h1 class="text-neutral-500 text-sm uppercase tracking-widest mb-2">Grez-Neuville, FR</h1>
-                    <div id="clock" class="text-7xl font-bold tracking-tighter">00:00</div>
-                    <div id="date" class="text-lg text-blue-500">...</div>
+    <main class="flex-1 p-6 md:p-12 overflow-y-auto">
+        
+        <section id="home" class="page active space-y-8">
+            <header>
+                <h2 class="text-3xl font-semibold">Bonjour, <span class="text-gray-400 font-light">Lucien</span></h2>
+                <p id="context-label" class="text-sm text-gray-500 italic">Mode Travail activé</p>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-4">Prochains événements</h3>
+                    <div id="home-events" class="space-y-2 text-sm text-gray-600"></div>
                 </div>
-                <div class="card bg-blue-500 text-white border-none flex flex-col justify-between">
-                    <h3 class="font-bold">Focus Timer</h3>
-                    <div id="timer-display" class="text-5xl font-mono">25:00</div>
-                    <button onclick="toggleTimer()" id="btn-timer" class="bg-white text-blue-500 rounded-xl py-2 font-bold uppercase text-xs">Démarrer</button>
+                <div class="card p-6">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-4">Focus</h3>
+                    <div id="timer-display" class="text-4xl font-light mb-4 text-center">25:00</div>
+                    <button onclick="toggleTimer()" id="btn-timer" class="w-full bg-gray-100 py-2 rounded-lg text-xs font-bold uppercase">Start</button>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="card">
-                    <h3 class="text-xs font-bold uppercase text-neutral-400 mb-4">Missions Prioritaires</h3>
-                    <div id="home-tasks" class="space-y-2"></div>
+        </section>
+
+        <section id="calendar" class="page space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="card p-6 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 id="cal-title" class="text-xl font-semibold">...</h2>
+                        <div class="flex gap-2 text-xs">
+                            <button onclick="changeMonth(-1)" class="p-2 bg-gray-100 rounded">Préc.</button>
+                            <button onclick="changeMonth(1)" class="p-2 bg-gray-100 rounded">Suiv.</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-gray-400 mb-4">
+                        <span>LUN</span><span>MAR</span><span>MER</span><span>JEU</span><span>VEN</span><span>SAM</span><span>DIM</span>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
                 </div>
-                <div class="card">
-                    <h3 class="text-xs font-bold uppercase text-neutral-400 mb-4">Ambiance Zen</h3>
-                    <div class="flex gap-4">
-                        <button onclick="toggleZen('rain')" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl flex-1 hover:scale-105 transition"><i class="fa-solid fa-cloud-showers-heavy"></i></button>
-                        <button onclick="toggleZen('fire')" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl flex-1 hover:scale-105 transition"><i class="fa-solid fa-fire"></i></button>
-                        <button onclick="toggleZen('nature')" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl flex-1 hover:scale-105 transition"><i class="fa-solid fa-leaf"></i></button>
+
+                <div class="space-y-6">
+                    <div class="card p-6">
+                        <h3 class="text-sm font-bold mb-4">Nouvel événement</h3>
+                        <div class="space-y-3">
+                            <input type="text" id="ev-title" placeholder="Titre..." class="w-full p-2 border border-gray-200 rounded-lg text-sm">
+                            <input type="date" id="ev-date" class="w-full p-2 border border-gray-200 rounded-lg text-sm">
+                            <input type="time" id="ev-time" class="w-full p-2 border border-gray-200 rounded-lg text-sm">
+                            <button onclick="addEvent()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-bold">Ajouter</button>
+                        </div>
+                    </div>
+                    <div class="card p-6 overflow-y-auto max-h-[300px]">
+                        <h3 class="text-sm font-bold mb-4">Agenda du mois</h3>
+                        <div id="agenda-list" class="space-y-3 text-xs"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="calendar" class="page card">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="cal-title" class="text-2xl font-bold italic">Avril 2026</h2>
-                <div class="flex gap-2">
-                    <button onclick="changeMonth(-1)" class="p-2 border rounded-lg"><i class="fa-solid fa-chevron-left"></i></button>
-                    <button onclick="changeMonth(1)" class="p-2 border rounded-lg"><i class="fa-solid fa-chevron-right"></i></button>
-                </div>
-            </div>
-            <div class="grid grid-cols-7 gap-2 text-center font-bold text-xs text-neutral-500 mb-4">
-                <span>LUN</span><span>MAR</span><span>MER</span><span>JEU</span><span>VEN</span><span>SAM</span><span>DIM</span>
-            </div>
-            <div id="calendar-grid" class="grid grid-cols-7 gap-2 min-h-[400px]"></div>
+        <section id="todo" class="page space-y-4 max-w-xl">
+            <div class="flex gap-2"><input type="text" id="task-input" class="flex-1 p-2 border rounded-lg" placeholder="Mission..."><button onclick="addTask()" class="bg-gray-800 text-white px-4 rounded-lg">Add</button></div>
+            <div id="task-list" class="space-y-2"></div>
         </section>
 
         <section id="finance" class="page space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="card border-l-4 border-blue-500">
-                    <span class="text-xs uppercase text-neutral-500">Solde estimé</span>
-                    <div id="finance-total" class="text-3xl font-bold mt-2">0,00 €</div>
-                </div>
-                <div class="card md:col-span-2">
-                    <div class="flex gap-2">
-                        <input type="text" id="fin-name" placeholder="Description" class="flex-1">
-                        <input type="number" id="fin-amount" placeholder="Montant" class="w-32">
-                        <button onclick="addFinance()" class="bg-blue-500 text-white px-6 rounded-xl font-bold">Ajouter</button>
-                    </div>
-                </div>
-            </div>
-            <div id="finance-list" class="space-y-2"></div>
+            <div class="card p-8 bg-gray-800 text-white border-none"><p class="text-xs opacity-60">Solde</p><p id="finance-balance" class="text-4xl">0.00 €</p></div>
+            <div class="card p-4 flex flex-col gap-3"><input type="text" id="fin-name" placeholder="Motif"><input type="number" id="fin-amount" placeholder="€"><button onclick="addFinance()" class="bg-blue-600 text-white py-2 rounded-lg">Enregistrer</button></div>
+            <div id="finance-history" class="space-y-1"></div>
         </section>
 
-        <section id="journal" class="page space-y-4">
-            <div class="card h-[500px] flex flex-col">
-                <div class="flex justify-between mb-4">
-                    <h2 class="font-bold">Journal de bord</h2>
-                    <span id="journal-date" class="text-xs text-neutral-500"></span>
-                </div>
-                <textarea id="journal-input" oninput="saveJournal()" class="flex-1 bg-transparent border-none outline-none resize-none leading-relaxed text-lg" placeholder="Cher journal, aujourd'hui..."></textarea>
-            </div>
+        <section id="files" class="page space-y-6">
+            <button onclick="addFolder()" class="bg-gray-200 px-4 py-2 rounded-lg text-sm font-bold">+ Dossier</button>
+            <div id="folder-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </section>
 
-        <section id="tools" class="page grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="card">
-                <h3 class="font-bold mb-4">Calculatrice Rapide</h3>
-                <input type="text" id="calc-display" readonly class="w-full text-right text-2xl mb-4 p-4 rounded-xl">
-                <div class="grid grid-cols-4 gap-2">
-                    <button onclick="calc(7)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">7</button>
-                    <button onclick="calc(8)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">8</button>
-                    <button onclick="calc(9)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">9</button>
-                    <button onclick="calcOp('/')" class="p-4 bg-blue-500/10 text-blue-500 rounded-xl">/</button>
-                    <button onclick="calc(4)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">4</button>
-                    <button onclick="calc(5)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">5</button>
-                    <button onclick="calc(6)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">6</button>
-                    <button onclick="calcOp('*')" class="p-4 bg-blue-500/10 text-blue-500 rounded-xl">*</button>
-                    <button onclick="calc(1)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">1</button>
-                    <button onclick="calc(2)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">2</button>
-                    <button onclick="calc(3)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">3</button>
-                    <button onclick="calcOp('-')" class="p-4 bg-blue-500/10 text-blue-500 rounded-xl">-</button>
-                    <button onclick="calcClear()" class="p-4 bg-red-500/10 text-red-500 rounded-xl">C</button>
-                    <button onclick="calc(0)" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">0</button>
-                    <button onclick="calcResult()" class="p-4 bg-emerald-500 text-white rounded-xl">=</button>
-                    <button onclick="calcOp('+')" class="p-4 bg-blue-500/10 text-blue-500 rounded-xl">+</button>
-                </div>
-            </div>
-            <div class="card">
-                <h3 class="font-bold mb-4">Convertisseur Devise (EUR vers USD)</h3>
-                <div class="space-y-4">
-                    <input type="number" id="conv-in" oninput="convert()" placeholder="Montant en €" class="w-full">
-                    <div class="text-center text-2xl font-bold">⬇</div>
-                    <div id="conv-out" class="p-4 bg-blue-500/10 rounded-xl text-center text-xl font-bold">0.00 $</div>
-                </div>
-            </div>
-        </section>
-
-        <section id="settings" class="page card max-w-xl mx-auto">
-            <h2 class="text-xl font-bold mb-6 italic underline">Paramètres Système</h2>
-            <div class="space-y-6">
-                <div class="flex justify-between items-center">
-                    <span>Thème visuel</span>
-                    <button onclick="toggleTheme()" class="px-6 py-2 border rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">Basculer Mode</button>
-                </div>
-                <div class="pt-6 border-t dark:border-slate-800">
-                    <p class="text-sm text-red-500 mb-4">Réinitialisation complète</p>
-                    <button onclick="clearData()" class="text-xs text-neutral-500 underline">Effacer toutes les données locales</button>
-                </div>
-            </div>
-        </section>
     </main>
 
     <script>
-        // NAVIGATION & THEME
+        // DATA MANAGEMENT
+        let currentContext = 'work';
+        let data = JSON.parse(localStorage.getItem('lucien_os_master')) || {
+            work: { tasks: [], files: [], events: [] },
+            perso: { tasks: [], files: [], events: [] },
+            finance: []
+        };
+
+        function save() { localStorage.setItem('lucien_os_master', JSON.stringify(data)); }
+
+        // NAVIGATION
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(document.getElementById('link-'+id)) document.getElementById('link-'+id).classList.add('active');
+            if(id === 'calendar') renderCalendar();
+            if(id === 'home') refreshHome();
         }
-        function toggleTheme() {
-            const isDark = document.body.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-        if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
 
-        // HORLOGE & DATE
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('date').innerText = now.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-            document.getElementById('journal-date').innerText = now.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+        function switchContext(ctx) {
+            currentContext = ctx;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('ctx-' + ctx).classList.add('active');
+            document.getElementById('context-label').innerText = `Mode ${ctx === 'work' ? 'Travail' : 'Personnel'} activé`;
+            showPage('home');
         }
-        setInterval(updateTime, 1000); updateTime();
 
-        // CALENDRIER INTERACTIF
+        // CALENDRIER LOGIC
         let curDate = new Date();
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
@@ -184,71 +146,88 @@
             grid.innerHTML = '';
             const first = new Date(year, month, 1).getDay() || 7;
             const last = new Date(year, month + 1, 0).getDate();
+            
             for(let i=1; i<first; i++) grid.innerHTML += '<div></div>';
             for(let i=1; i<=last; i++) {
-                const isToday = i === new Date().getDate() && month === new Date().getMonth() ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800/50';
-                grid.innerHTML += `<div class="p-4 rounded-xl flex flex-col items-center justify-center text-sm font-medium ${isToday}">${i}</div>`;
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                const hasEvent = data[currentContext].events.some(e => e.date === dateStr);
+                const isToday = i === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+                
+                grid.innerHTML += `<div class="p-3 bg-white border border-gray-100 rounded-lg text-xs ${hasEvent ? 'has-event' : ''} ${isToday ? 'bg-blue-50 border-blue-200' : ''}">${i}</div>`;
             }
+            renderAgenda();
         }
-        function changeMonth(d) { curDate.setMonth(curDate.getMonth() + d); renderCalendar(); }
-        renderCalendar();
 
-        // FINANCES
-        let finance = JSON.parse(localStorage.getItem('finances_v2')) || [];
-        function addFinance() {
-            const n = document.getElementById('fin-name'), a = document.getElementById('fin-amount');
-            if(!n.value || !a.value) return;
-            finance.push({name: n.value, amount: parseFloat(a.value), date: new Date().toLocaleDateString()});
-            n.value = ''; a.value = ''; renderFinance();
+        function addEvent() {
+            const t = document.getElementById('ev-title'), d = document.getElementById('ev-date'), tm = document.getElementById('ev-time');
+            if(!t.value || !d.value) return;
+            data[currentContext].events.push({ title: t.value, date: d.value, time: tm.value });
+            t.value = ''; d.value = ''; tm.value = '';
+            save(); renderCalendar();
         }
-        function renderFinance() {
-            const list = document.getElementById('finance-list');
-            const total = finance.reduce((s, e) => s + e.amount, 0);
-            list.innerHTML = finance.map((f, i) => `
-                <div class="card py-3 flex justify-between items-center text-sm">
-                    <span>${f.name} <span class="text-xs text-neutral-500 ml-2">${f.date}</span></span>
-                    <div class="flex items-center gap-4">
-                        <span class="font-bold ${f.amount < 0 ? 'text-red-500' : 'text-emerald-500'}">${f.amount.toFixed(2)}€</span>
-                        <button onclick="finance.splice(${i},1); renderFinance();" class="text-neutral-400">×</button>
-                    </div>
+
+        function renderAgenda() {
+            const list = document.getElementById('agenda-list');
+            const sorted = data[currentContext].events.sort((a,b) => new Date(a.date) - new Date(b.date));
+            list.innerHTML = sorted.map((e, i) => `
+                <div class="p-2 bg-gray-50 rounded flex justify-between items-center">
+                    <div><span class="font-bold">${new Date(e.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'})}</span> - ${e.title}</div>
+                    <button onclick="data[currentContext].events.splice(${i},1); save(); renderCalendar();" class="text-gray-300">×</button>
                 </div>
             `).join('');
-            document.getElementById('finance-total').innerText = total.toFixed(2) + " €";
-            localStorage.setItem('finances_v2', JSON.stringify(finance));
-        }
-        renderFinance();
-
-        // JOURNAL
-        function saveJournal() { localStorage.setItem('journal_note', document.getElementById('journal-input').value); }
-        document.getElementById('journal-input').value = localStorage.getItem('journal_note') || "";
-
-        // CALCULATRICE & CONVERTISSEUR
-        let calcVal = "";
-        function calc(n) { calcVal += n; document.getElementById('calc-display').value = calcVal; }
-        function calcOp(op) { calcVal += op; document.getElementById('calc-display').value = calcVal; }
-        function calcClear() { calcVal = ""; document.getElementById('calc-display').value = ""; }
-        function calcResult() { try { calcVal = eval(calcVal).toString(); document.getElementById('calc-display').value = calcVal; } catch { calcClear(); } }
-        function convert() {
-            const val = document.getElementById('conv-in').value;
-            document.getElementById('conv-out').innerText = (val * 1.09).toFixed(2) + " $"; // Taux fictif
         }
 
-        // ZEN SOUNDS
-        function toggleZen(type) { alert("Mode " + type + " activé. (Connecte ton Spotify ou ajoute des fichiers audio)"); }
+        function changeMonth(v) { curDate.setMonth(curDate.getMonth()+v); renderCalendar(); }
+
+        // TASK, FINANCE, FILES (RE-USED FROM PREVIOUS)
+        function addTask() {
+            const i = document.getElementById('task-input'); if(!i.value) return;
+            data[currentContext].tasks.push({text: i.value, done: false}); i.value=''; save(); renderTasks();
+        }
+        function renderTasks() {
+            document.getElementById('task-list').innerHTML = data[currentContext].tasks.map((t, i) => `<div class="p-3 bg-white border border-gray-200 rounded-xl flex justify-between text-sm"><span>${t.text}</span><button onclick="data[currentContext].tasks.splice(${i},1); save(); renderTasks();">×</button></div>`).join('');
+        }
+
+        function addFinance() {
+            const n = document.getElementById('fin-name'), a = document.getElementById('fin-amount'); if(!n.value || !a.value) return;
+            data.finance.push({name: n.value, amount: parseFloat(a.value), date: new Date().toLocaleDateString()});
+            n.value=''; a.value=''; save(); renderFinance();
+        }
+        function renderFinance() {
+            const bal = data.finance.reduce((s,e)=>s+e.amount, 0);
+            document.getElementById('finance-balance').innerText = bal.toFixed(2) + " €";
+            document.getElementById('finance-history').innerHTML = data.finance.slice().reverse().map(f => `<div class="flex justify-between p-2 border-b text-xs"><span>${f.name}</span><span class="${f.amount < 0 ? 'text-red-500':'text-emerald-600'}">${f.amount}€</span></div>`).join('');
+        }
+
+        function addFolder() { const n = prompt("Nom :"); if(n) { data[currentContext].files.push({name:n}); save(); renderFolders(); } }
+        function renderFolders() {
+            document.getElementById('folder-grid').innerHTML = data[currentContext].files.map(f => `<div class="card p-4 flex flex-col items-center gap-2 text-xs"><i class="fa-solid fa-folder text-gray-300"></i>${f.name}</div>`).join('');
+        }
+
+        // CLOCK
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('date-label').innerText = now.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        // REFRESH HOME
+        function refreshHome() {
+            const ev = document.getElementById('home-events');
+            const upcoming = data[currentContext].events.slice(0,3);
+            ev.innerHTML = upcoming.length ? upcoming.map(e => `<div>• ${e.title} (${e.date})</div>`).join('') : "Aucun événement.";
+            renderTasks(); renderFinance(); renderFolders();
+        }
 
         // TIMER
         let timeLeft = 1500, timerId = null;
-        function toggleTimer() {
-            if(timerId) { clearInterval(timerId); timerId = null; document.getElementById('btn-timer').innerText="Reprendre"; }
-            else { timerId = setInterval(() => {
-                timeLeft--;
-                let m=Math.floor(timeLeft/60), s=timeLeft%60;
-                document.getElementById('timer-display').innerText = `${m}:${s<10?'0'+s:s}`;
-                if(timeLeft <= 0) { clearInterval(timerId); alert("Temps écoulé !"); }
-            }, 1000); document.getElementById('btn-timer').innerText="Pause"; }
+        function toggleTimer() { 
+            if(timerId) { clearInterval(timerId); timerId = null; } 
+            else { timerId = setInterval(() => { timeLeft--; let m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById('timer-display').innerText = `${m}:${s<10?'0'+s:s}`; }, 1000); }
         }
 
-        function clearData() { if(confirm("Tout effacer ?")) { localStorage.clear(); location.reload(); } }
+        refreshHome();
     </script>
 </body>
 </html>
