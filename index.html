@@ -3,170 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Dash - Lucien</title>
+    <title>Lucien OS - Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; }
-        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease; }
-        .glass:hover { border-color: rgba(59, 130, 246, 0.5); }
-        .habit-dot { width: 12px; height: 12px; border-radius: 4px; border: 1px solid #334155; cursor: pointer; }
-        .habit-dot.active { background: #3b82f6; border-color: #60a5fa; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+        .page { display: none; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-btn.active { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: #3b82f6; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
+<body class="min-h-screen flex flex-col md:flex-row">
 
-    <div class="max-w-7xl mx-auto space-y-6">
+    <nav class="w-full md:w-20 lg:w-64 glass border-r border-slate-800 p-4 flex flex-col gap-8">
+        <div class="hidden lg:block text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent px-4">
+            LUCIEN OS
+        </div>
+        <div class="flex md:flex-col gap-2">
+            <button onclick="showPage('home')" class="tab-btn active w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition hover:bg-slate-800">
+                <i class="fa-solid fa-house"></i> <span class="hidden lg:block">Dashboard</span>
+            </button>
+            <button onclick="showPage('calendar')" class="tab-btn w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition hover:bg-slate-800">
+                <i class="fa-solid fa-calendar-days"></i> <span class="hidden lg:block">Calendrier</span>
+            </button>
+            <button onclick="showPage('finance')" class="tab-btn w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition hover:bg-slate-800">
+                <i class="fa-solid fa-wallet"></i> <span class="hidden lg:block">Finances</span>
+            </button>
+            <button onclick="showPage('links')" class="tab-btn w-full flex items-center gap-4 p-4 rounded-2xl border border-transparent transition hover:bg-slate-800">
+                <i class="fa-solid fa-bookmark"></i> <span class="hidden lg:block">Favoris</span>
+            </button>
+        </div>
+        <div class="mt-auto hidden md:block p-4 glass rounded-2xl text-center">
+            <div id="side-clock" class="text-sm font-bold text-blue-400">00:00</div>
+        </div>
+    </nav>
+
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            <div class="flex items-center gap-4">
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">ULTRA DASH</h1>
-                <div id="weather" class="text-sm text-slate-400"><i class="fa-solid fa-cloud-sun mr-2"></i>18°C Paris</div>
+        <section id="home" class="page active space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-3xl font-bold italic text-slate-200">Hello Lucien.</h2>
+                <div id="weather" class="glass px-4 py-2 rounded-full text-xs text-slate-400 border-none">19°C • Ensoleillé</div>
             </div>
-            <div class="relative group">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-500"></i>
-                <form action="https://www.google.com/search" method="GET" target="_blank">
-                    <input type="text" name="q" placeholder="Recherche Google..." class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl py-2 pl-12 pr-4 outline-none focus:ring-2 focus:ring-blue-500/50 transition">
-                </form>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 glass p-6 rounded-3xl min-h-[300px]">
+                    <h3 class="font-bold mb-4 text-blue-400">Objectifs du moment</h3>
+                    <div id="task-list-home" class="space-y-3"></div>
+                </div>
+                <div class="glass p-6 rounded-3xl flex flex-col items-center justify-center">
+                    <div id="timer-display" class="text-5xl font-light mb-4 text-blue-400">25:00</div>
+                    <button onclick="toggleTimer()" id="btn-timer" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 px-8 py-2 rounded-full hover:bg-blue-600 hover:text-white transition">Start Focus</button>
+                </div>
             </div>
-            <div class="text-right">
-                <div id="clock" class="text-4xl font-light tracking-tight">00:00:00</div>
-                <div id="current-date" class="text-xs uppercase tracking-widest text-slate-500"></div>
-            </div>
-        </div>
+        </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            
-            <div class="space-y-6">
-                <div class="glass p-5 rounded-3xl">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Habitudes</h3>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm">Eau (2L)</span>
-                            <div class="flex gap-1">
-                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
-                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
-                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm">Lecture</span>
-                            <div class="flex gap-1">
-                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
-                                <div class="habit-dot" onclick="this.classList.toggle('active')"></div>
-                            </div>
-                        </div>
+        <section id="calendar" class="page space-y-6">
+            <div class="glass p-8 rounded-3xl">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold" id="cal-month-year">...</h2>
+                    <div class="flex gap-2">
+                        <button onclick="changeMonth(-1)" class="p-2 hover:text-blue-400"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button onclick="changeMonth(1)" class="p-2 hover:text-blue-400"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
+                <div class="grid grid-cols-7 gap-2 mb-2 text-center text-[10px] font-bold text-slate-500 uppercase">
+                    <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-2 h-96"></div>
+            </div>
+        </section>
 
-                <div class="glass p-5 rounded-3xl">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Focus Audio</h3>
-                    <div class="flex justify-around">
-                        <button onclick="toggleSound('rain')" class="p-3 bg-slate-800 rounded-xl hover:text-blue-400"><i class="fa-solid fa-cloud-showers-heavy"></i></button>
-                        <button onclick="toggleSound('cafe')" class="p-3 bg-slate-800 rounded-xl hover:text-orange-400"><i class="fa-solid fa-mug-hot"></i></button>
-                        <button onclick="toggleSound('nature')" class="p-3 bg-slate-800 rounded-xl hover:text-emerald-400"><i class="fa-solid fa-leaf"></i></button>
-                    </div>
+        <section id="links" class="page space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold">Mes Raccourcis</h2>
+                <button onclick="toggleAddLink()" class="bg-blue-600 px-4 py-2 rounded-xl text-sm hover:bg-blue-500 transition">+ Ajouter</button>
+            </div>
+
+            <div id="link-form" class="hidden glass p-6 rounded-3xl border-dashed border-2 border-slate-700">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="link-name" placeholder="Nom (ex: GitHub)" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 outline-none">
+                    <input type="text" id="link-url" placeholder="URL (ex: https://...)" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 outline-none">
+                    <button onclick="saveNewLink()" class="bg-emerald-600 rounded-xl py-2 font-bold hover:bg-emerald-500 transition text-white">Enregistrer</button>
                 </div>
             </div>
 
-            <div class="md:col-span-2 space-y-6">
-                <div class="glass p-6 rounded-3xl min-h-[400px]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Missions</h3>
-                        <span id="task-count" class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-lg">0 complétées</span>
-                    </div>
-                    <div class="flex gap-2 mb-6">
-                        <input type="text" id="task-input" placeholder="Ajouter une tâche..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition">
-                        <button onclick="addTask()" class="bg-blue-600 hover:bg-blue-500 p-3 rounded-xl transition shadow-lg shadow-blue-900/20"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                    <ul id="task-list" class="space-y-2"></ul>
+            <div id="links-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                </div>
+        </section>
+
+        <section id="finance" class="page space-y-6">
+            <div class="glass p-8 rounded-3xl">
+                <h3 class="font-bold mb-6">Suivi des Dépenses</h3>
+                <div class="flex gap-4 mb-8">
+                    <input type="text" id="exp-name" placeholder="Article..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2">
+                    <input type="number" id="exp-amount" placeholder="€" class="w-24 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2">
+                    <button onclick="addExpense()" class="bg-blue-600 px-6 rounded-xl hover:bg-blue-500">Ajouter</button>
+                </div>
+                <div id="expense-list" class="space-y-2"></div>
+                <div class="mt-8 pt-4 border-t border-slate-800 flex justify-between font-bold text-xl">
+                    <span>Total :</span>
+                    <span id="total-expense" class="text-red-400">0,00 €</span>
                 </div>
             </div>
+        </section>
 
-            <div class="space-y-6">
-                <div class="glass p-5 rounded-3xl text-center">
-                    <div id="timer-display" class="text-4xl font-bold text-blue-400 mb-4">25:00</div>
-                    <button onclick="toggleTimer()" id="btn-timer" class="w-full bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-sm font-semibold transition">Démarrer Focus</button>
-                </div>
-
-                <div class="glass p-5 rounded-3xl">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-orange-400 italic">Think Pad</h3>
-                    <textarea id="scratchpad" oninput="saveNotes()" class="w-full h-40 bg-transparent border-none outline-none resize-none text-sm text-slate-300 placeholder:text-slate-700" placeholder="Une idée ? Note-la ici..."></textarea>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <audio id="audio-rain" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+    </main>
 
     <script>
-        // HORLOGE & DATE
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR');
-            document.getElementById('current-date').innerText = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // TASKS AVEC PERSISTANCE
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        function renderTasks() {
-            const list = document.getElementById('task-list');
-            list.innerHTML = '';
-            tasks.forEach((t, i) => {
-                list.innerHTML += `
-                    <li class="flex items-center gap-3 bg-slate-900/40 p-3 rounded-xl border border-slate-800 group">
-                        <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${i})" class="w-5 h-5 rounded border-slate-700 bg-slate-800 text-blue-500 focus:ring-0 outline-none">
-                        <span class="flex-1 text-sm ${t.done ? 'line-through text-slate-600' : ''}">${t.text}</span>
-                        <button onclick="deleteTask(${i})" class="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-xmark"></i></button>
-                    </li>
-                `;
-            });
-            document.getElementById('task-count').innerText = `${tasks.filter(t => t.done).length} complétées`;
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+        // NAVIGATION
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(pageId === 'home') renderTasksHome();
         }
 
-        function addTask() {
-            const input = document.getElementById('task-input');
-            if (!input.value.trim()) return;
-            tasks.push({ text: input.value, done: false });
-            input.value = '';
-            renderTasks();
+        // TIME
+        function updateTime() {
+            document.getElementById('side-clock').innerText = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateTime, 1000); updateTime();
+
+        // GESTION DES LIENS
+        let userLinks = JSON.parse(localStorage.getItem('user_links')) || [
+            { name: 'YouTube', url: 'https://youtube.com', icon: 'fa-youtube' },
+            { name: 'ChatGPT', url: 'https://chat.openai.com', icon: 'fa-robot' },
+            { name: 'GitHub', url: 'https://github.com', icon: 'fa-github' }
+        ];
+
+        function toggleAddLink() { document.getElementById('link-form').classList.toggle('hidden'); }
+
+        function saveNewLink() {
+            const name = document.getElementById('link-name').value;
+            let url = document.getElementById('link-url').value;
+            if(!name || !url) return;
+            if(!url.startsWith('http')) url = 'https://' + url;
+            userLinks.push({ name, url, icon: 'fa-link' });
+            localStorage.setItem('user_links', JSON.stringify(userLinks));
+            document.getElementById('link-name').value = '';
+            document.getElementById('link-url').value = '';
+            toggleAddLink();
+            renderLinks();
         }
 
-        function toggleTask(i) { tasks[i].done = !tasks[i].done; renderTasks(); }
-        function deleteTask(i) { tasks.splice(i, 1); renderTasks(); }
-        renderTasks();
+        function deleteLink(index) {
+            userLinks.splice(index, 1);
+            localStorage.setItem('user_links', JSON.stringify(userLinks));
+            renderLinks();
+        }
 
-        // NOTES
-        function saveNotes() { localStorage.setItem('notes', document.getElementById('scratchpad').value); }
-        document.getElementById('scratchpad').value = localStorage.getItem('notes') || "";
+        function renderLinks() {
+            const grid = document.getElementById('links-grid');
+            grid.innerHTML = userLinks.map((l, i) => `
+                <div class="group relative glass p-6 rounded-3xl flex flex-col items-center justify-center hover:bg-slate-800/50 transition cursor-pointer border-none">
+                    <a href="${l.url}" target="_blank" class="flex flex-col items-center gap-3">
+                        <div class="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-xl text-blue-400">
+                            <i class="fa-solid ${l.icon || 'fa-link'}"></i>
+                        </div>
+                        <span class="text-xs font-semibold truncate w-full text-center">${l.name}</span>
+                    </a>
+                    <button onclick="deleteLink(${i})" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+        renderLinks();
 
-        // FOCUS TIMER (POMODORO)
-        let timeLeft = 25 * 60;
-        let timerId = null;
-        function toggleTimer() {
-            if (timerId) {
-                clearInterval(timerId);
-                timerId = null;
-                document.getElementById('btn-timer').innerText = "Reprendre";
-            } else {
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    let m = Math.floor(timeLeft/60), s = timeLeft%60;
-                    document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
-                    if (timeLeft <= 0) clearInterval(timerId);
-                }, 1000);
-                document.getElementById('btn-timer').innerText = "Pause";
+        // RE-USE TASKS FROM PREVIOUS SESSION
+        function renderTasksHome() {
+            const tasks = JSON.parse(localStorage.getItem('tasks_v2')) || [];
+            document.getElementById('task-list-home').innerHTML = tasks.length ? tasks.slice(0, 5).map(t => `
+                <div class="flex items-center gap-3 p-3 glass rounded-2xl border-none text-sm">
+                    <i class="fa-solid ${t.done ? 'fa-check text-emerald-500' : 'fa-circle-notch text-blue-500'}"></i>
+                    <span class="${t.done ? 'line-through text-slate-500' : ''}">${t.text}</span>
+                </div>
+            `).join('') : '<p class="text-slate-500 text-sm italic">Aucune tâche en cours...</p>';
+        }
+        renderTasksHome();
+
+        // CALENDAR LOGIC (SAME AS BEFORE)
+        let currentCalDate = new Date();
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const title = document.getElementById('cal-month-year');
+            grid.innerHTML = '';
+            const month = currentCalDate.getMonth();
+            const year = currentCalDate.getFullYear();
+            title.innerText = new Intl.DateTimeFormat('fr-FR', {month: 'long', year: 'numeric'}).format(currentCalDate);
+            const firstDay = new Date(year, month, 1).getDay() || 7;
+            const lastDate = new Date(year, month + 1, 0).getDate();
+            for(let i=1; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+            for(let i=1; i <= lastDate; i++) {
+                const isToday = i === new Date().getDate() && month === new Date().getMonth() ? 'border-blue-500 bg-blue-500/10' : 'border-slate-800';
+                grid.innerHTML += `<div class="border ${isToday} rounded-xl flex items-center justify-center text-sm hover:bg-slate-800">${i}</div>`;
             }
         }
+        function changeMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); }
+        renderCalendar();
 
-        // AUDIO TOGGLE (Simulation)
-        function toggleSound(type) {
-            alert("Mode " + type + " activé (nécessite des fichiers audio locaux)");
+        // POMODORO (SAME)
+        let timeLeft = 25 * 60; let timerId = null;
+        function toggleTimer() {
+            const btn = document.getElementById('btn-timer');
+            if (timerId) { clearInterval(timerId); timerId = null; btn.innerText = "Resume"; }
+            else { timerId = setInterval(() => {
+                timeLeft--; const m = Math.floor(timeLeft/60), s = timeLeft%60;
+                document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                if(timeLeft <= 0) { clearInterval(timerId); alert("Focus terminé !"); }
+            }, 1000); btn.innerText = "Pause"; }
         }
+
+        // FINANCES (SAME)
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        function addExpense() {
+            const n = document.getElementById('exp-name'), a = document.getElementById('exp-amount');
+            if(!n.value || !a.value) return;
+            expenses.push({ name: n.value, amount: parseFloat(a.value) });
+            n.value = ''; a.value = ''; renderExpenses();
+        }
+        function renderExpenses() {
+            const list = document.getElementById('expense-list');
+            const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+            list.innerHTML = expenses.map(e => `<div class="flex justify-between p-3 glass rounded-xl border-none"><span>${e.name}</span><span class="text-red-400 font-bold">-${e.amount}€</span></div>`).join('');
+            document.getElementById('total-expense').innerText = total.toFixed(2) + " €";
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+        renderExpenses();
+
     </script>
 </body>
 </html>
