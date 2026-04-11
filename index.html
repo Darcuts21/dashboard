@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucien OS - Ultra Quantum</title>
+    <title>Lucien OS - Quantum Ultra Stable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap');
         :root { --bg: #f8f9fa; --card: #ffffff; --text: #1a1a1a; --accent: #007aff; --border: #e5e7eb; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; transition: 0.2s ease; }
         .page { display: none; height: 92vh; overflow-y: auto; padding: 20px; }
         .page.active { display: block; animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .sidebar-btn.active { background: white; color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .mode-active { background: var(--accent) !important; color: white !important; }
-        .cli-log { font-family: 'Fira Code', monospace; font-size: 11px; scrollbar-width: none; }
-        .cli-log::-webkit-scrollbar { display: none; }
-        .calendar-day { min-height: 80px; }
-        .folder-icon { color: #60a5fa; }
-        .file-icon { color: #94a3b8; }
+        .cli-log { font-family: 'Fira Code', monospace; font-size: 11px; }
+        .calendar-day { min-height: 80px; border-right: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+        .calendar-day:nth-child(7n) { border-right: none; }
     </style>
 </head>
 <body class="flex h-screen p-4 gap-4">
@@ -33,7 +31,7 @@
         <nav class="flex flex-col gap-1">
             <button onclick="showPage('home')" class="sidebar-btn active p-3 rounded-xl flex items-center gap-4 transition" id="btn-home"><i class="fa-solid fa-terminal"></i> <span class="hidden md:block text-sm font-medium">Dashboard</span></button>
             <button onclick="showPage('files')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-files"><i class="fa-solid fa-folder-tree"></i> <span class="hidden md:block text-sm font-medium">Fichiers</span></button>
-            <button onclick="showPage('todo')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-todo"><i class="fa-solid fa-list-check"></i> <span class="hidden md:block text-sm font-medium">To-Do List</span></button>
+            <button onclick="showPage('todo')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-todo"><i class="fa-solid fa-list-check"></i> <span class="hidden md:block text-sm font-medium">To-Do</span></button>
             <button onclick="showPage('calendar')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-calendar"><i class="fa-solid fa-calendar-alt"></i> <span class="hidden md:block text-sm font-medium">Calendrier</span></button>
             <button onclick="showPage('finance')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-finance"><i class="fa-solid fa-vault"></i> <span class="hidden md:block text-sm font-medium">Finances</span></button>
             <button onclick="showPage('notes')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-notes"><i class="fa-solid fa-pen-nib"></i> <span class="hidden md:block text-sm font-medium">Notes</span></button>
@@ -41,9 +39,9 @@
         <div class="mt-auto p-4 card border-none bg-transparent">
             <div id="clock" class="text-xl font-bold text-center">00:00</div>
             <div class="w-full bg-gray-200 h-1.5 rounded-full mt-3 overflow-hidden">
-                <div id="day-progress" class="bg-blue-500 h-full transition-all duration-1000" style="width: 0%"></div>
+                <div id="day-progress" class="bg-blue-500 h-full transition-all duration-1000"></div>
             </div>
-            <div class="text-[8px] text-gray-400 uppercase tracking-widest mt-2 text-center" id="timer-label">Progression Journée</div>
+            <div class="text-[8px] text-gray-400 uppercase tracking-widest mt-2 text-center">Progression Journée</div>
         </div>
     </aside>
 
@@ -51,7 +49,7 @@
         
         <section id="home" class="page active space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2 card p-6 bg-gradient-to-br from-white to-gray-50 border-none shadow-sm">
+                <div class="md:col-span-2 card p-6 bg-gradient-to-br from-white to-gray-50 border-none shadow-sm flex flex-col justify-center">
                     <h2 class="text-3xl font-light">Bonjour, <span class="font-bold italic text-blue-600">Lucien</span></h2>
                     <p class="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-widest">Connecté • <span id="lbl-ctx">Work</span> Mode</p>
                 </div>
@@ -63,34 +61,53 @@
 
             <div class="card p-4 border-2 border-gray-100 flex flex-col h-[350px] shadow-sm">
                 <div id="cli-logs" class="flex-1 overflow-y-auto cli-log p-2 space-y-1 text-gray-400">
-                    <div>> Lucien OS Terminal v6.0. Type /help.</div>
+                    <div>> Lucien OS Quantum Ready. Tape /help pour commencer.</div>
                 </div>
                 <div class="mt-2 flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
                     <span class="text-blue-500 font-bold font-mono text-xs">Lucien@OS:~$</span>
-                    <input type="text" id="cli-input" class="flex-1 bg-transparent outline-none text-sm font-mono" placeholder="Action..." autofocus autocomplete="off">
+                    <input type="text" id="cli-input" class="flex-1 bg-transparent outline-none text-sm font-mono" placeholder="Entrer une commande..." autofocus autocomplete="off">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="card p-5"><h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Tâches</h3><div id="dash-tasks" class="space-y-2 text-xs"></div></div>
-                <div class="card p-5"><h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Notes</h3><div id="dash-note-preview" class="text-xs italic text-gray-500 line-clamp-3"></div></div>
+                <div class="card p-5"><h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Tâches Prioritaires</h3><div id="dash-tasks" class="space-y-2 text-xs"></div></div>
+                <div class="card p-5"><h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Dernière Note</h3><div id="dash-note-preview" class="text-xs italic text-gray-500 line-clamp-3"></div></div>
             </div>
         </section>
 
         <section id="files" class="page">
-            <div class="flex items-center gap-4 mb-6">
-                <button onclick="goBackDir()" class="p-2 hover:bg-gray-200 rounded-lg transition"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2 class="text-xl font-bold">Système de Fichiers <span class="text-gray-300 font-light text-sm">/ <span id="path-display">root</span></span></h2>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <button onclick="goBackDir()" class="p-2 hover:bg-gray-200 rounded-lg"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="text-xl font-bold">Explorateur <span class="text-gray-300 font-light">/ <span id="path-display">root</span></span></h2>
+                </div>
+                <div class="flex gap-2">
+                   <button onclick="executeCmd('/mkdir Nouveau_Dossier')" class="text-[10px] font-bold uppercase p-2 border rounded-lg hover:bg-gray-50">Nouv. Dossier</button>
+                </div>
             </div>
             <div id="files-grid" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
         </section>
 
-        <section id="todo" class="page max-w-2xl mx-auto"><div id="full-todo-list" class="space-y-3"></div></section>
+        <section id="todo" class="page max-w-2xl mx-auto space-y-4">
+            <h2 class="text-2xl font-bold italic mb-6">Liste des Tâches</h2>
+            <div id="full-todo-list" class="space-y-3"></div>
+        </section>
+
         <section id="calendar" class="page space-y-4">
             <div class="flex justify-between items-center"><h2 id="cal-title" class="text-2xl font-bold italic"></h2><div class="flex gap-2"><button onclick="changeMonth(-1)" class="p-2 card"> < </button><button onclick="changeMonth(1)" class="p-2 card"> > </button></div></div>
-            <div id="cal-grid" class="grid grid-cols-7 gap-px bg-gray-100 card overflow-hidden"></div>
+            <div class="card overflow-hidden">
+                <div class="grid grid-cols-7 text-center py-3 text-[10px] font-bold text-gray-400 uppercase border-b">
+                    <span>Dim</span><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span>
+                </div>
+                <div id="cal-grid" class="grid grid-cols-7 bg-white"></div>
+            </div>
         </section>
-        <section id="finance" class="page space-y-4"><div id="fin-history" class="card p-4 space-y-2"></div></section>
+
+        <section id="finance" class="page space-y-4">
+             <h2 class="text-2xl font-bold italic mb-6">Historique Financier</h2>
+             <div id="fin-history" class="space-y-2"></div>
+        </section>
+
         <section id="notes" class="page h-full"><textarea id="note-area" oninput="saveNotes()" class="w-full h-full p-10 card outline-none resize-none text-lg" placeholder="Notes..."></textarea></section>
     </main>
 
@@ -99,14 +116,14 @@
         let currentMonth = new Date();
         let curDir = 'root';
         
-        let db = JSON.parse(localStorage.getItem('lucien_os_v6')) || {
+        let db = JSON.parse(localStorage.getItem('lucien_os_v7')) || {
             work: { tasks: [], finance: [], notes: "", files: { 'root': [] } },
-            perso: { tasks: [], finance: [], notes: "", events: [], files: { 'root': [] } }
+            perso: { tasks: [], finance: [], notes: "", files: { 'root': [] } }
         };
 
-        const save = () => { localStorage.setItem('lucien_os_v6', JSON.stringify(db)); refresh(); };
+        const save = () => { localStorage.setItem('lucien_os_v7', JSON.stringify(db)); refresh(); };
 
-        // TERMINAL COMMANDS
+        // TERMINAL
         const cliInput = document.getElementById('cli-input');
         const cliLogs = document.getElementById('cli-logs');
         cliInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { executeCmd(cliInput.value.trim()); cliInput.value = ''; } });
@@ -120,59 +137,49 @@
         }
 
         function executeCmd(raw) {
+            if(!raw) return;
             const [cmd, ...args] = raw.split(' ');
             const text = args.join(' ');
             switch(cmd.toLowerCase()) {
-                case '/todo': db[curCtx].tasks.push({ text, done: false }); log(`Ajouté : ${text}`, 'blue-500'); break;
+                case '/todo': 
+                    if(!text) { log('Erreur: Texte manquant', 'red-400'); break; }
+                    db[curCtx].tasks.push({ text, done: false }); 
+                    log(`Ajouté : ${text}`, 'blue-500'); break;
                 case '/rm': 
                     const idx = parseInt(text) - 1;
-                    if(db[curCtx].tasks[idx]) { log(`Supprimé : ${db[curCtx].tasks[idx].text}`); db[curCtx].tasks.splice(idx,1); }
+                    if(db[curCtx].tasks[idx]) { 
+                        log(`Supprimé : ${db[curCtx].tasks[idx].text}`, 'orange-500'); 
+                        db[curCtx].tasks.splice(idx,1); 
+                    } else { log('Index invalide', 'red-400'); }
                     break;
                 case '/fin': 
                     const parts = text.split(' '); const val = parseFloat(parts.pop());
+                    if(isNaN(val)) { log('Erreur: Montant invalide', 'red-400'); break; }
                     db[curCtx].finance.push({ label: parts.join(' '), val, date: new Date().toLocaleDateString() });
-                    log(`Finance : ${val}€`, 'green-600'); break;
-                case '/mkdir': createItem('folder', text); log(`Dossier créé : ${text}`); break;
-                case '/touch': createItem('file', text); log(`Fichier créé : ${text}`); break;
-                case '/ls': log(`Contenu : ` + db[curCtx].files[curDir].map(i => i.name).join(', ')); break;
-                case '/calc': try { log(`Résultat : ${eval(text)}`, 'yellow-600'); } catch(e) { log('Erreur de calcul'); } break;
-                case '/timer': startTimer(parseInt(text)); break;
-                case '/work': switchContext('work'); break;
-                case '/perso': switchContext('perso'); break;
-                case '/help': log('/todo, /rm [n°], /fin [nom] [montant], /mkdir, /touch, /calc, /timer, /work, /perso, /cls'); break;
-                case '/cls': cliLogs.innerHTML = ''; break;
-                default: log(`Erreur : ${cmd} inconnu`, 'red-400');
+                    log(`Finance : ${val}€ enregistré`, 'green-600'); break;
+                case '/mkdir': 
+                    const id = 'f_' + Date.now();
+                    db[curCtx].files[curDir].push({ name: text || 'Nouveau Dossier', type: 'folder', id });
+                    db[curCtx].files[id] = [];
+                    log(`Dossier '${text}' créé.`); break;
+                case '/calc': 
+                    try { const res = eval(text.replace(/[^-()\d/*+.]/g, '')); log(`Résultat : ${res}`, 'yellow-600'); } 
+                    catch { log('Erreur de calcul', 'red-400'); } break;
+                case '/work': switchContext('work'); log('Mode WORK'); break;
+                case '/perso': switchContext('perso'); log('Mode PERSO'); break;
+                case '/cls': case '/clear': cliLogs.innerHTML = ''; break;
+                case '/help': log('/todo [txt], /rm [n°], /fin [nom] [montant], /mkdir [nom], /calc [ope], /work, /perso, /clear'); break;
+                default: log(`Commande inconnue`, 'red-400');
             }
             save();
         }
 
-        // SYSTEME DE FICHIERS
-        function createItem(type, name) {
-            const id = 'f_' + Date.now();
-            db[curCtx].files[curDir].push({ name, type, id });
-            if(type === 'folder') db[curCtx].files[id] = [];
-            save();
-        }
-
-        function renderFiles() {
-            const grid = document.getElementById('files-grid');
-            document.getElementById('path-display').innerText = curDir;
-            grid.innerHTML = db[curCtx].files[curDir].map(f => `
-                <div class="card p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-blue-400 transition" onclick="${f.type==='folder'?`openFolder('${f.id}')`:''}">
-                    <i class="fa-solid ${f.type==='folder'?'fa-folder folder-icon':'fa-file file-icon'} text-3xl"></i>
-                    <span class="text-[10px] font-bold text-center truncate w-full uppercase">${f.name}</span>
-                </div>
-            `).join('');
-        }
-        const openFolder = (id) => { curDir = id; renderFiles(); };
-        const goBackDir = () => { curDir = 'root'; renderFiles(); };
-
-        // NAVIGATION & REFRESH
+        // NAVIGATION
         function switchContext(ctx) {
             curCtx = ctx; curDir = 'root';
             document.querySelectorAll('#ctx-work, #ctx-perso').forEach(b => b.classList.remove('mode-active'));
-            document.getElementById('ctx-' + ctx).classList.add('mode-active');
-            document.getElementById('lbl-ctx').innerText = ctx;
+            document.getElementById('ctx-' + ctx).classList.add('active', 'mode-active');
+            document.getElementById('lbl-ctx').innerText = ctx.charAt(0).toUpperCase() + ctx.slice(1);
             refresh();
         }
 
@@ -181,52 +188,72 @@
             document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.getElementById('btn-' + id).classList.add('active');
-            if(id === 'calendar') renderCalendar();
-            if(id === 'files') renderFiles();
             refresh();
         }
 
+        // AFFICHAGES
         function refresh() {
             const bal = db[curCtx].finance.reduce((s, x) => s + x.val, 0);
             document.getElementById('dash-balance').innerText = bal.toFixed(2) + " €";
-            document.getElementById('dash-tasks').innerHTML = db[curCtx].tasks.filter(t => !t.done).slice(0,3).map((t,i) => `<div>${i+1}. ${t.text}</div>`).join('');
-            document.getElementById('dash-note-preview').innerText = db[curCtx].notes.substring(0, 100) + "...";
+            document.getElementById('dash-tasks').innerHTML = db[curCtx].tasks.filter(t => !t.done).slice(0,3).map((t,i) => `<div class="p-2 bg-gray-50 rounded border border-gray-100">${i+1}. ${t.text}</div>`).join('') || '<p class="text-gray-300">Aucune tâche</p>';
+            document.getElementById('dash-note-preview').innerText = db[curCtx].notes ? db[curCtx].notes.substring(0, 100) + "..." : "Aucune note pour le moment.";
             document.getElementById('note-area').value = db[curCtx].notes;
-            renderFiles();
+            
+            // Files
+            document.getElementById('path-display').innerText = curDir === 'root' ? 'root' : '.../' + curDir.slice(-4);
+            document.getElementById('files-grid').innerHTML = db[curCtx].files[curDir].map(f => `
+                <div class="card p-6 flex flex-col items-center gap-2 cursor-pointer hover:shadow-md" onclick="${f.type==='folder'?`openFolder('${f.id}')`:''}">
+                    <i class="fa-solid fa-folder text-blue-400 text-3xl"></i>
+                    <span class="text-[10px] font-bold uppercase truncate w-full text-center">${f.name}</span>
+                </div>`).join('');
+
+            // To-Do Page
+            document.getElementById('full-todo-list').innerHTML = db[curCtx].tasks.map((t, i) => `
+                <div class="card p-4 flex justify-between items-center">
+                    <span class="text-sm font-medium">${i+1}. ${t.text}</span>
+                    <button onclick="db['${curCtx}'].tasks.splice(${i},1); save();" class="text-red-400 hover:text-red-600 transition"><i class="fa-solid fa-trash-can"></i></button>
+                </div>`).join('');
+
+            // Finance Page
+            document.getElementById('fin-history').innerHTML = db[curCtx].finance.slice().reverse().map(f => `
+                <div class="card p-4 flex justify-between items-center">
+                    <div><p class="font-bold text-sm">${f.label}</p><p class="text-[10px] text-gray-400">${f.date}</p></div>
+                    <span class="font-mono font-bold ${f.val < 0 ? 'text-red-500' : 'text-green-600'}">${f.val.toFixed(2)} €</span>
+                </div>`).join('');
+
+            if(document.getElementById('calendar').classList.contains('active')) renderCalendar();
         }
+
+        const openFolder = (id) => { curDir = id; refresh(); };
+        const goBackDir = () => { curDir = 'root'; refresh(); };
 
         // CALENDRIER
         function renderCalendar() {
             const grid = document.getElementById('cal-grid');
-            grid.innerHTML = '<div class="bg-white py-2 text-[10px] font-bold border-b col-span-7 grid grid-cols-7 text-center"><span>D</span><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span></div>';
+            grid.innerHTML = '';
             const y = currentMonth.getFullYear(), m = currentMonth.getMonth();
             document.getElementById('cal-title').innerText = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(currentMonth);
             const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
             for (let i = 0; i < first; i++) grid.innerHTML += `<div class="bg-gray-50/50 calendar-day"></div>`;
             for (let d = 1; d <= days; d++) {
-                const isToday = d === new Date().getDate() && m === new Date().getMonth();
-                grid.innerHTML += `<div class="bg-white p-2 calendar-day border-l border-t text-right"><span class="text-xs ${isToday?'bg-blue-600 text-white p-1 rounded-full px-2':''}">${d}</span></div>`;
+                const isToday = d === new Date().getDate() && m === new Date().getMonth() && y === new Date().getFullYear();
+                grid.innerHTML += `<div class="bg-white p-2 calendar-day flex flex-col items-end">
+                    <span class="text-xs ${isToday ? 'bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded-full font-bold' : 'text-gray-400'}">${d}</span>
+                </div>`;
             }
         }
         function changeMonth(v) { currentMonth.setMonth(currentMonth.getMonth() + v); renderCalendar(); }
 
-        // TIME & PROGRESS
+        // TIME
         function updateTime() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-            let prog = ((now.getHours() + now.getMinutes()/60 - 8) / (20 - 8)) * 100;
+            let h = now.getHours() + now.getMinutes()/60;
+            let prog = ((h - 8) / (20 - 8)) * 100;
             document.getElementById('day-progress').style.width = Math.max(0, Math.min(100, prog)) + '%';
         }
         setInterval(updateTime, 1000); updateTime();
-
-        function startTimer(min) {
-            let sec = min * 60;
-            log(`Timer lancé : ${min} minutes`, 'orange-500');
-            const interval = setInterval(() => {
-                sec--;
-                if(sec <= 0) { clearInterval(interval); log("TEMPS ÉCOULÉ !", "red-600"); alert("Timer terminé !"); }
-            }, 1000);
-        }
+        function saveNotes() { db[curCtx].notes = document.getElementById('note-area').value; save(); }
 
         refresh();
     </script>
