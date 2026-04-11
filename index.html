@@ -3,218 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucien OS - Notes Integration</title>
+    <title>Lucien OS - Quantum</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-        :root { --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --border: #d2d2d7; --accent: #0066cc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: all 0.3s ease; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .mode-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-        .has-event { border-bottom: 3px solid var(--accent) !important; font-weight: bold; }
-        textarea { scrollbar-width: none; }
-        textarea::-webkit-scrollbar { display: none; }
+        :root { --bg: #f4f4f5; --card: #ffffff; --text: #18181b; --accent: #2563eb; --border: #e4e4e7; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; transition: all 0.2s; }
+        .page { display: none; height: 90vh; overflow-y: auto; padding-right: 10px; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .sidebar-btn.active { background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); color: var(--accent); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row">
+<body class="flex h-screen p-4 gap-4">
 
-    <aside class="w-full md:w-64 p-6 flex flex-col gap-8 bg-white/50 backdrop-blur-md border-r border-gray-200">
-        <div class="flex p-1 bg-gray-200 rounded-lg">
-            <button onclick="switchContext('work')" id="ctx-work" class="mode-btn flex-1 py-1.5 text-xs font-bold rounded-md active transition">TRAVAIL</button>
-            <button onclick="switchContext('perso')" id="ctx-perso" class="mode-btn flex-1 py-1.5 text-xs font-bold rounded-md transition">PERSO</button>
+    <aside class="w-20 md:w-64 flex flex-col gap-6 p-4">
+        <div class="flex flex-col items-center md:items-start mb-4">
+            <div class="p-1 bg-gray-200 rounded-xl flex w-full">
+                <button onclick="switchContext('work')" id="ctx-work" class="flex-1 py-2 text-[10px] font-bold rounded-lg active transition uppercase">Work</button>
+                <button onclick="switchContext('perso')" id="ctx-perso" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition uppercase">Perso</button>
+            </div>
         </div>
-        <nav class="flex flex-col gap-2 text-sm text-gray-500">
-            <button onclick="showPage('home')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"><i class="fa-solid fa-house"></i> Accueil</button>
-            <button onclick="showPage('calendar')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"><i class="fa-solid fa-calendar"></i> Calendrier</button>
-            <button onclick="showPage('notes')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"><i class="fa-solid fa-pen-nib"></i> Notes</button>
-            <button onclick="showPage('todo')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"><i class="fa-solid fa-list-check"></i> To-Do</button>
-            <button onclick="showPage('finance')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"><i class="fa-solid fa-wallet"></i> Comptes</button>
-            <button onclick="showPage('files')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"><i class="fa-solid fa-folder"></i> Dossiers</button>
+
+        <nav class="flex flex-col gap-2">
+            <button onclick="showPage('home')" class="sidebar-btn active p-3 rounded-xl flex items-center gap-4 transition" id="btn-home"><i class="fa-solid fa-layer-group"></i> <span class="hidden md:block text-sm font-medium">Dashboard</span></button>
+            <button onclick="showPage('calendar')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4 transition" id="btn-calendar"><i class="fa-solid fa-calendar-day"></i> <span class="hidden md:block text-sm font-medium">Calendrier</span></button>
+            <button onclick="showPage('files')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4 transition" id="btn-files"><i class="fa-solid fa-folder-open"></i> <span class="hidden md:block text-sm font-medium">Explorateur</span></button>
+            <button onclick="showPage('finance')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4 transition" id="btn-finance"><i class="fa-solid fa-vault"></i> <span class="hidden md:block text-sm font-medium">Comptes</span></button>
+            <button onclick="showPage('notes')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4 transition" id="btn-notes"><i class="fa-solid fa-file-lines"></i> <span class="hidden md:block text-sm font-medium">Notes</span></button>
         </nav>
-        <div class="mt-auto pt-6 border-t border-gray-200">
-            <div id="clock" class="text-2xl font-light">00:00</div>
-            <div id="date-label" class="text-[10px] text-gray-400 uppercase tracking-widest mt-1">...</div>
+
+        <div class="mt-auto space-y-4">
+            <div class="card p-4 text-center hidden md:block">
+                <div id="clock" class="text-xl font-bold">00:00</div>
+                <div id="day-progress" class="w-full bg-gray-100 h-1 rounded-full mt-2 overflow-hidden"><div id="progress-bar" class="bg-blue-500 h-full transition-all" style="width: 0%"></div></div>
+                <div class="text-[9px] text-gray-400 mt-1 uppercase tracking-tighter">Progression Journée</div>
+            </div>
         </div>
     </aside>
 
-    <main class="flex-1 p-6 md:p-12 overflow-y-auto">
+    <main class="flex-1 overflow-hidden">
         
-        <section id="home" class="page active space-y-8">
-            <header>
-                <h2 class="text-3xl font-semibold italic">Bonjour, <span class="text-gray-400 font-light">Lucien</span></h2>
-                <p id="context-label" class="text-sm text-gray-500">Mode Travail activé</p>
-            </header>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="card p-6">
-                    <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-widest">Dernière Note</h3>
-                    <div id="home-note-preview" class="text-sm text-gray-500 line-clamp-3 italic">Pas de note encore...</div>
+        <section id="home" class="page active grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2 space-y-4">
+                <div class="card p-8 flex flex-col justify-center bg-gradient-to-br from-white to-gray-50">
+                    <h1 class="text-4xl font-light tracking-tight">Bonjour, <span class="font-bold">Lucien</span>.</h1>
+                    <p id="quote" class="text-xs text-gray-400 mt-2 italic italic italic">"Le futur appartient à ceux qui se lèvent tôt."</p>
                 </div>
-                <div class="card p-6 flex flex-col items-center justify-center">
-                    <div id="timer-display" class="text-4xl font-light mb-2">25:00</div>
-                    <button onclick="toggleTimer()" id="btn-timer" class="text-[10px] font-bold text-blue-600 uppercase">Focus Start</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="notes" class="page h-full">
-            <div class="card h-[80vh] flex flex-col p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-medium">Bloc-notes <span id="note-ctx-tag" class="text-xs text-gray-400 uppercase ml-2"></span></h2>
-                    <span class="text-[10px] text-gray-400 uppercase italic">Sauvegarde automatique</span>
-                </div>
-                <textarea id="main-notes" oninput="saveNotes()" class="w-full flex-1 bg-transparent border-none outline-none resize-none text-lg leading-relaxed text-gray-700" placeholder="Commence à écrire tes idées ici..."></textarea>
-            </div>
-        </section>
-
-        <section id="calendar" class="page space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="card p-6 lg:col-span-2">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 id="cal-title" class="text-xl font-semibold italic">...</h2>
-                        <div class="flex gap-2"><button onclick="changeMonth(-1)" class="p-1 px-3 bg-gray-100 rounded text-xs">Préc.</button><button onclick="changeMonth(1)" class="p-1 px-3 bg-gray-100 rounded text-xs">Suiv.</button></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card p-4">
+                        <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-3">Missions</h3>
+                        <div id="dash-tasks" class="space-y-2 text-xs"></div>
                     </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-gray-400"></div>
-                </div>
-                <div class="card p-6">
-                    <h3 class="text-xs font-bold mb-4 uppercase">Ajouter un rendez-vous</h3>
-                    <div class="space-y-3">
-                        <input type="text" id="ev-title" placeholder="Titre..." class="w-full p-2 border rounded-lg text-sm bg-gray-50">
-                        <input type="date" id="ev-date" class="w-full p-2 border rounded-lg text-sm bg-gray-50">
-                        <button onclick="addEvent()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-bold">Ajouter</button>
+                    <div class="card p-4">
+                        <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-3">Rendez-vous</h3>
+                        <div id="dash-events" class="space-y-2 text-xs"></div>
                     </div>
                 </div>
             </div>
+            <div class="space-y-4">
+                <div class="card p-6 bg-blue-600 text-white border-none">
+                    <span class="text-[10px] uppercase opacity-70">Solde <span class="ctx-name uppercase"></span></span>
+                    <div class="text-3xl font-bold mt-1" id="dash-balance">0.00 €</div>
+                </div>
+                <div class="card p-4 h-64 overflow-hidden relative">
+                    <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-3">Note Rapide</h3>
+                    <div id="dash-note" class="text-xs italic text-gray-500 whitespace-pre-wrap"></div>
+                </div>
+            </div>
         </section>
 
-        <section id="todo" class="page space-y-6 max-w-2xl mx-auto">
-            <div class="flex gap-2"><input type="text" id="task-input" class="flex-1 p-3 border rounded-xl" placeholder="Quelle est la mission ?"><button onclick="addTask()" class="bg-gray-800 text-white px-6 rounded-xl font-bold">OK</button></div>
-            <div id="task-list" class="space-y-3"></div>
+        <section id="files" class="page">
+            <div class="flex items-center gap-4 mb-6">
+                <button onclick="goBackFolder()" class="p-2 hover:bg-gray-200 rounded-lg transition"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-xl font-bold italic" id="folder-path">Root / Dossiers</h2>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="files-grid"></div>
+            <div class="mt-8 pt-8 border-t flex gap-4">
+                <input type="text" id="new-item-name" placeholder="Nom..." class="bg-white p-2 rounded-lg border text-sm flex-1">
+                <button onclick="createNewItem('folder')" class="bg-gray-200 px-4 py-2 rounded-lg text-xs font-bold uppercase">Nouv. Dossier</button>
+                <button onclick="createNewItem('file')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase">Nouv. Fichier</button>
+            </div>
         </section>
 
         <section id="finance" class="page space-y-6">
-            <div class="card p-10 bg-gray-900 text-white border-none"><p class="text-[10px] opacity-40 uppercase tracking-widest">Solde Actuel</p><p id="finance-balance" class="text-5xl font-light mt-2">0.00 €</p></div>
-            <div class="card p-6 flex gap-4 items-end"><div class="flex-1"><input type="text" id="fin-name" placeholder="Motif" class="w-full mb-2"><input type="number" id="fin-amount" placeholder="Montant (€)" class="w-full"></div><button onclick="addFinance()" class="bg-blue-600 text-white h-10 px-8 rounded-lg font-bold">Enregistrer</button></div>
-            <div id="finance-history" class="space-y-1"></div>
+            <div class="flex justify-between items-end">
+                <div><h2 class="text-2xl font-bold uppercase tracking-tighter">Comptabilité <span class="ctx-name"></span></h2></div>
+                <div class="text-4xl font-light" id="fin-total">0.00 €</div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-6 md:col-span-1 space-y-4">
+                    <input type="text" id="fin-label" placeholder="Désignation" class="w-full text-sm">
+                    <input type="number" id="fin-val" placeholder="Montant (+/-)" class="w-full text-sm">
+                    <button onclick="addTransaction()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest">Enregistrer l'opération</button>
+                </div>
+                <div class="card p-6 md:col-span-2 max-h-[400px] overflow-y-auto" id="fin-list"></div>
+            </div>
         </section>
 
-        <section id="files" class="page space-y-6">
-            <div class="flex justify-between items-center"><h2 class="text-xl font-semibold">Mes Dossiers</h2><button onclick="addFolder()" class="bg-gray-200 px-4 py-2 rounded-lg text-xs font-bold">+ NOUVEAU</button></div>
-            <div id="folder-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center"></div>
-        </section>
+        <section id="calendar" class="page card p-8"><div id="cal-header" class="flex justify-between mb-8"></div><div id="cal-grid" class="grid grid-cols-7 gap-4"></div></section>
+        <section id="notes" class="page card p-10 h-full"><textarea id="note-editor" oninput="saveNotes()" class="w-full h-full bg-transparent outline-none resize-none text-xl leading-relaxed" placeholder="Écris ici, Lucien..."></textarea></section>
 
     </main>
 
     <script>
-        let currentContext = 'work';
-        let data = JSON.parse(localStorage.getItem('lucien_os_v3')) || {
-            work: { tasks: [], files: [], events: [], notes: "" },
-            perso: { tasks: [], files: [], events: [], notes: "" },
-            finance: []
+        // ARCHITECTURE DE DONNÉES
+        let curCtx = 'work';
+        let curFolder = 'root';
+        let db = JSON.parse(localStorage.getItem('lucien_db_quantum')) || {
+            work: { tasks: [], events: [], finance: [], notes: "", files: { 'root': { items: [] } } },
+            perso: { tasks: [], events: [], finance: [], notes: "", files: { 'root': { items: [] } } }
         };
 
-        function save() { localStorage.setItem('lucien_os_v3', JSON.stringify(data)); }
+        const save = () => localStorage.setItem('lucien_db_quantum', JSON.stringify(db));
 
+        // SWITCH CONTEXTE
         function switchContext(ctx) {
-            currentContext = ctx;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            curCtx = ctx;
+            document.querySelectorAll('#ctx-work, #ctx-perso').forEach(b => b.classList.remove('active'));
             document.getElementById('ctx-' + ctx).classList.add('active');
-            document.getElementById('context-label').innerText = `Mode ${ctx === 'work' ? 'Travail' : 'Personnel'} activé`;
-            document.getElementById('note-ctx-tag').innerText = ctx;
-            refreshAll();
+            document.querySelectorAll('.ctx-name').forEach(el => el.innerText = ctx);
+            curFolder = 'root';
+            showPage('home');
         }
 
+        // NAVIGATION
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id === 'notes') document.getElementById('main-notes').value = data[currentContext].notes;
-            if(id === 'calendar') renderCalendar();
-            if(id === 'home') refreshHome();
+            document.getElementById('btn-' + id).classList.add('active');
+            refresh();
         }
 
-        // NOTES
-        function saveNotes() {
-            data[currentContext].notes = document.getElementById('main-notes').value;
-            save();
+        // EXPLORATEUR DE FICHIERS
+        function createNewItem(type) {
+            const name = document.getElementById('new-item-name').value;
+            if(!name) return;
+            const id = 'id_' + Date.now();
+            db[curCtx].files[curFolder].items.push({ name, type, id });
+            if(type === 'folder') db[curCtx].files[id] = { items: [] };
+            document.getElementById('new-item-name').value = '';
+            save(); renderFiles();
         }
 
-        // CALENDRIER
-        let curDate = new Date();
-        function renderCalendar() {
-            const grid = document.getElementById('calendar-grid');
-            const month = curDate.getMonth(), year = curDate.getFullYear();
-            document.getElementById('cal-title').innerText = new Intl.DateTimeFormat('fr-FR', {month:'long', year:'numeric'}).format(curDate);
-            grid.innerHTML = '<span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>';
-            const first = new Date(year, month, 1).getDay() || 7;
-            const last = new Date(year, month + 1, 0).getDate();
-            for(let i=1; i<first; i++) grid.innerHTML += '<div></div>';
-            for(let i=1; i<=last; i++) {
-                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                const hasEvent = data[currentContext].events.some(e => e.date === dateStr);
-                const isToday = i === new Date().getDate() && month === new Date().getMonth();
-                grid.innerHTML += `<div class="p-3 bg-white border border-gray-50 rounded-lg text-xs ${hasEvent?'has-event':''} ${isToday?'border-blue-500 text-blue-600 font-bold':''}">${i}</div>`;
-            }
+        function renderFiles() {
+            const grid = document.getElementById('files-grid');
+            document.getElementById('folder-path').innerText = curFolder === 'root' ? 'Explorateur / Racine' : 'Explorateur / ' + curFolder;
+            grid.innerHTML = db[curCtx].files[curFolder].items.map(item => `
+                <div class="card p-6 flex flex-col items-center gap-3 cursor-pointer group hover:border-blue-500" onclick="${item.type==='folder' ? `openFolder('${item.id}')` : ''}">
+                    <i class="fa-solid ${item.type==='folder'?'fa-folder text-blue-400':'fa-file text-gray-300'} text-3xl"></i>
+                    <span class="text-[10px] font-bold uppercase text-center truncate w-full">${item.name}</span>
+                </div>
+            `).join('');
         }
-        function addEvent() {
-            const t = document.getElementById('ev-title'), d = document.getElementById('ev-date');
-            if(!t.value || !d.value) return;
-            data[currentContext].events.push({ title: t.value, date: d.value });
-            t.value = ''; d.value = ''; save(); renderCalendar();
-        }
-        function changeMonth(v) { curDate.setMonth(curDate.getMonth()+v); renderCalendar(); }
+        const openFolder = (id) => { curFolder = id; renderFiles(); };
+        const goBackFolder = () => { curFolder = 'root'; renderFiles(); };
 
-        // TASK & FINANCE
-        function addTask() {
-            const i = document.getElementById('task-input'); if(!i.value) return;
-            data[currentContext].tasks.push({text: i.value, done: false}); i.value=''; save(); renderTasks();
+        // FINANCES SÉPARÉES
+        function addTransaction() {
+            const l = document.getElementById('fin-label'), v = document.getElementById('fin-val');
+            if(!l.value || !v.value) return;
+            db[curCtx].finance.push({ label: l.value, amount: parseFloat(v.value), date: new Date().toLocaleDateString() });
+            l.value = ''; v.value = '';
+            save(); refresh();
         }
-        function renderTasks() {
-            document.getElementById('task-list').innerHTML = data[currentContext].tasks.map((t, i) => `<div class="p-4 bg-white border border-gray-200 rounded-xl flex justify-between text-sm"><span>${t.text}</span><button onclick="data[currentContext].tasks.splice(${i},1); save(); renderTasks();" class="text-gray-300">×</button></div>`).join('');
-        }
-        function addFinance() {
-            const n = document.getElementById('fin-name'), a = document.getElementById('fin-amount'); if(!n.value || !a.value) return;
-            data.finance.push({name: n.value, amount: parseFloat(a.value), date: new Date().toLocaleDateString()});
-            n.value=''; a.value=''; save(); renderFinance();
-        }
+
         function renderFinance() {
-            const bal = data.finance.reduce((s,e)=>s+e.amount, 0);
-            document.getElementById('finance-balance').innerText = bal.toFixed(2) + " €";
-            document.getElementById('finance-history').innerHTML = data.finance.slice().reverse().map(f => `<div class="flex justify-between p-3 border-b border-gray-100 text-xs"><span>${f.name}</span><span class="${f.amount < 0 ? 'text-red-400':'text-emerald-600'}">${f.amount}€</span></div>`).join('');
+            const list = document.getElementById('fin-list');
+            const total = db[curCtx].finance.reduce((s, t) => s + t.amount, 0);
+            document.getElementById('fin-total').innerText = total.toFixed(2) + " €";
+            document.getElementById('dash-balance').innerText = total.toFixed(2) + " €";
+            list.innerHTML = db[curCtx].finance.slice().reverse().map(t => `
+                <div class="flex justify-between p-3 border-b text-sm">
+                    <span class="font-medium">${t.label}</span>
+                    <span class="${t.amount < 0 ? 'text-red-500':'text-green-600'} font-bold">${t.amount.toFixed(2)}€</span>
+                </div>
+            `).join('');
         }
 
-        // FOLDERS
-        function addFolder() { const n = prompt("Nom :"); if(n) { data[currentContext].files.push({name:n}); save(); renderFolders(); } }
-        function renderFolders() {
-            document.getElementById('folder-grid').innerHTML = data[currentContext].files.map(f => `<div class="card p-4 flex flex-col items-center gap-2 text-[10px] font-bold uppercase tracking-tight text-gray-400"><i class="fa-solid fa-folder text-2xl text-gray-200"></i>${f.name}</div>`).join('');
-        }
-
-        // REFRESH & CLOCK
-        function updateClock() {
+        // REFRESH & UTILS
+        function refresh() {
+            renderFinance();
+            renderFiles();
+            document.getElementById('dash-note').innerText = db[curCtx].notes || "Aucune note...";
+            document.getElementById('note-editor').value = db[curCtx].notes;
+            // Update Progress Bar
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('date-label').innerText = now.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-        }
-        setInterval(updateClock, 1000); updateClock();
-
-        function refreshHome() {
-            const preview = document.getElementById('home-note-preview');
-            const noteContent = data[currentContext].notes;
-            preview.innerText = noteContent ? noteContent.substring(0, 100) + (noteContent.length > 100 ? '...' : '') : "Pas de note pour le moment.";
-            renderTasks(); renderFinance(); renderFolders();
+            const start = new Date().setHours(8,0,0);
+            const end = new Date().setHours(20,0,0);
+            const prog = Math.max(0, Math.min(100, ((now - start) / (end - start)) * 100));
+            document.getElementById('progress-bar').style.width = prog + '%';
         }
 
-        function refreshAll() { refreshHome(); if(document.getElementById('notes').classList.contains('active')) document.getElementById('main-notes').value = data[currentContext].notes; }
+        function saveNotes() { db[curCtx].notes = document.getElementById('note-editor').value; save(); }
 
-        let timeLeft = 1500, timerId = null;
-        function toggleTimer() {
-            if(timerId) { clearInterval(timerId); timerId = null; }
-            else { timerId = setInterval(() => { timeLeft--; let m=Math.floor(timeLeft/60), s=timeLeft%60; document.getElementById('timer-display').innerText = `${m}:${s<10?'0'+s:s}`; }, 1000); }
-        }
+        // CLOCK
+        setInterval(() => {
+            const n = new Date();
+            document.getElementById('clock').innerText = n.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+        }, 1000);
 
-        switchContext('work'); // Initial load
+        switchContext('work');
     </script>
 </body>
 </html>
