@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucien OS - CLI Core</title>
+    <title>Lucien OS - Quantum v5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -18,26 +18,31 @@
         .mode-active { background: var(--accent) !important; color: white !important; }
         .cli-log { font-family: 'Fira Code', monospace; font-size: 11px; scrollbar-width: none; }
         .cli-log::-webkit-scrollbar { display: none; }
+        .calendar-day { min-height: 80px; transition: 0.2s; }
+        .calendar-day:hover { background-color: #f1f5f9; }
     </style>
 </head>
 <body class="flex h-screen p-4 gap-4">
 
     <aside class="w-20 md:w-64 flex flex-col gap-6 p-2">
         <div class="p-1 bg-gray-200 rounded-xl flex mb-4">
-            <button onclick="switchContext('work')" id="ctx-work" class="flex-1 py-2 text-[10px] font-bold rounded-lg uppercase mode-active">Travail</button>
-            <button onclick="switchContext('perso')" id="ctx-perso" class="flex-1 py-2 text-[10px] font-bold rounded-lg uppercase">Perso</button>
+            <button onclick="switchContext('work')" id="ctx-work" class="flex-1 py-2 text-[10px] font-bold rounded-lg uppercase mode-active transition-all">Travail</button>
+            <button onclick="switchContext('perso')" id="ctx-perso" class="flex-1 py-2 text-[10px] font-bold rounded-lg uppercase transition-all">Perso</button>
         </div>
         <nav class="flex flex-col gap-1">
             <button onclick="showPage('home')" class="sidebar-btn active p-3 rounded-xl flex items-center gap-4 transition" id="btn-home"><i class="fa-solid fa-terminal"></i> <span class="hidden md:block text-sm">Dashboard</span></button>
+            <button onclick="showPage('calendar')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-calendar"><i class="fa-solid fa-calendar-alt"></i> <span class="hidden md:block text-sm">Calendrier</span></button>
             <button onclick="showPage('todo')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-todo"><i class="fa-solid fa-check-double"></i> <span class="hidden md:block text-sm">To-Do List</span></button>
-            <button onclick="showPage('calendar')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-calendar"><i class="fa-solid fa-calendar-day"></i> <span class="hidden md:block text-sm">Calendrier</span></button>
-            <button onclick="showPage('files')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-files"><i class="fa-solid fa-folder-tree"></i> <span class="hidden md:block text-sm">Explorateur</span></button>
+            <button onclick="showPage('files')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-files"><i class="fa-solid fa-folder-tree"></i> <span class="hidden md:block text-sm">Fichiers</span></button>
             <button onclick="showPage('finance')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-finance"><i class="fa-solid fa-vault"></i> <span class="hidden md:block text-sm">Finances</span></button>
             <button onclick="showPage('notes')" class="sidebar-btn p-3 rounded-xl flex items-center gap-4" id="btn-notes"><i class="fa-solid fa-pen-nib"></i> <span class="hidden md:block text-sm">Notes</span></button>
         </nav>
-        <div class="mt-auto p-4 card text-center hidden md:block border-none bg-transparent">
-            <div id="clock" class="text-xl font-bold">00:00</div>
-            <div id="full-date" class="text-[9px] text-gray-400 uppercase tracking-widest mt-1">...</div>
+        <div class="mt-auto p-4 card border-none bg-transparent">
+            <div id="clock" class="text-xl font-bold text-center">00:00</div>
+            <div class="w-full bg-gray-200 h-1.5 rounded-full mt-3 overflow-hidden">
+                <div id="day-progress" class="bg-blue-500 h-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+            <div class="text-[8px] text-gray-400 uppercase tracking-widest mt-2 text-center">Progression Journée</div>
         </div>
     </aside>
 
@@ -46,8 +51,8 @@
         <section id="home" class="page active space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="md:col-span-2 card p-6 bg-gradient-to-br from-white to-gray-50 border-none shadow-sm">
-                    <h2 class="text-3xl font-light">Bonjour, <span class="font-bold">Lucien</span></h2>
-                    <p class="text-[10px] text-blue-500 mt-2 font-bold uppercase tracking-widest">Système Opérationnel • Mode <span id="lbl-ctx">Work</span></p>
+                    <h2 class="text-3xl font-light">Bonjour, <span class="font-bold italic">Lucien</span></h2>
+                    <p class="text-[10px] text-blue-500 mt-2 font-bold uppercase tracking-widest">Connecté • Mode <span id="lbl-ctx">Work</span></p>
                 </div>
                 <div class="card p-6 bg-gray-900 text-white flex flex-col justify-center">
                     <span class="text-[10px] uppercase opacity-50">Solde Actuel</span>
@@ -57,53 +62,62 @@
 
             <div class="card p-4 border-2 border-gray-100 flex flex-col h-[300px] shadow-sm">
                 <div id="cli-logs" class="flex-1 overflow-y-auto cli-log p-2 space-y-1 text-gray-400">
-                    <div>> Lucien OS Terminal prêt. Taper /help pour les commandes.</div>
+                    <div>> Lucien OS v5 Initialisé. Taper /help pour les commandes.</div>
                 </div>
                 <div class="mt-2 flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
                     <span class="text-blue-500 font-bold font-mono text-xs">Lucien@OS:~$</span>
-                    <input type="text" id="cli-input" class="flex-1 bg-transparent outline-none text-sm font-mono" placeholder="Action rapide..." autofocus autocomplete="off">
+                    <input type="text" id="cli-input" class="flex-1 bg-transparent outline-none text-sm font-mono" placeholder="Action..." autofocus autocomplete="off">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="card p-5">
-                    <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Missions Prioritaires</h3>
+                    <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Missions</h3>
                     <div id="dash-tasks" class="space-y-2 text-xs"></div>
                 </div>
                 <div class="card p-5">
-                    <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Aperçu Notes</h3>
+                    <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-3 tracking-widest">Note Récente</h3>
                     <div id="dash-note-preview" class="text-xs italic text-gray-500 line-clamp-4">...</div>
                 </div>
             </div>
         </section>
 
+        <section id="calendar" class="page space-y-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="cal-title" class="text-2xl font-bold italic">Mois</h2>
+                <div class="flex gap-2">
+                    <button onclick="changeMonth(-1)" class="p-2 card hover:bg-gray-100"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button onclick="changeMonth(1)" class="p-2 card hover:bg-gray-100"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="card p-1">
+                <div class="grid grid-cols-7 text-center py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b">
+                    <span>Dim</span><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span>
+                </div>
+                <div id="cal-grid" class="grid grid-cols-7 gap-px bg-gray-100"></div>
+            </div>
+        </section>
+
         <section id="todo" class="page max-w-2xl mx-auto"><div id="full-todo-list" class="space-y-3"></div></section>
-        <section id="calendar" class="page card p-6"><div id="cal-grid" class="grid grid-cols-7 gap-2 text-center text-xs font-bold"></div></section>
         <section id="files" class="page"><div id="files-grid" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div></section>
         <section id="finance" class="page space-y-6"><div id="fin-history" class="card p-4 space-y-2"></div></section>
-        <section id="notes" class="page h-full"><textarea id="note-area" oninput="saveNotes()" class="w-full h-full p-10 card outline-none resize-none text-lg leading-relaxed" placeholder="Écris tes pensées..."></textarea></section>
+        <section id="notes" class="page h-full"><textarea id="note-area" oninput="saveNotes()" class="w-full h-full p-10 card outline-none resize-none text-lg" placeholder="Notes..."></textarea></section>
     </main>
 
     <script>
         let curCtx = 'work';
-        let db = JSON.parse(localStorage.getItem('lucien_os_v4')) || {
-            work: { tasks: [], finance: [], notes: "", events: [], files: { 'root': [] } },
-            perso: { tasks: [], finance: [], notes: "", events: [], files: { 'root': [] } }
+        let currentMonth = new Date();
+        let db = JSON.parse(localStorage.getItem('lucien_os_v5')) || {
+            work: { tasks: [], finance: [], notes: "", events: [] },
+            perso: { tasks: [], finance: [], notes: "", events: [] }
         };
 
-        const save = () => { localStorage.setItem('lucien_os_v4', JSON.stringify(db)); refresh(); };
+        const save = () => { localStorage.setItem('lucien_os_v5', JSON.stringify(db)); refresh(); };
 
-        // TERMINAL LOGIC
+        // TERMINAL
         const cliInput = document.getElementById('cli-input');
         const cliLogs = document.getElementById('cli-logs');
-
-        cliInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const cmd = cliInput.value.trim();
-                executeCmd(cmd);
-                cliInput.value = '';
-            }
-        });
+        cliInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { executeCmd(cliInput.value.trim()); cliInput.value = ''; } });
 
         function log(msg, color = 'gray-500') {
             const div = document.createElement('div');
@@ -116,32 +130,22 @@
         function executeCmd(raw) {
             const [cmd, ...args] = raw.split(' ');
             const text = args.join(' ');
-
             switch(cmd.toLowerCase()) {
-                case '/todo':
-                    db[curCtx].tasks.push({ text, done: false });
-                    log(`Ajouté : ${text}`, 'blue-500');
-                    break;
-                case '/fin':
-                    const parts = text.split(' ');
-                    const val = parseFloat(parts.pop());
-                    const label = parts.join(' ');
-                    db[curCtx].finance.push({ label, val, date: new Date().toLocaleDateString() });
-                    log(`Transaction : ${label} (${val}€)`, 'green-600');
-                    break;
-                case '/note':
-                    db[curCtx].notes += "\n" + text;
-                    log(`Note complétée.`, 'purple-500');
-                    break;
-                case '/work': switchContext('work'); log('Mode TRAVAIL activé'); break;
-                case '/perso': switchContext('perso'); log('Mode PERSO activé'); break;
+                case '/todo': db[curCtx].tasks.push({ text, done: false }); log(`Ajouté : ${text}`, 'blue-500'); break;
+                case '/fin': 
+                    const parts = text.split(' '); const val = parseFloat(parts.pop());
+                    db[curCtx].finance.push({ label: parts.join(' '), val, date: new Date().toLocaleDateString() });
+                    log(`Finance : ${val}€`, 'green-600'); break;
+                case '/work': switchContext('work'); break;
+                case '/perso': switchContext('perso'); break;
+                case '/help': log('/todo [txt], /fin [label] [montant], /work, /perso, /clear'); break;
                 case '/clear': cliLogs.innerHTML = ''; break;
-                case '/help': log('/todo [txt], /fin [nom] [montant], /note [txt], /work, /perso, /clear'); break;
-                default: log(`Erreur : Commande ${cmd} inconnue`, 'red-400');
+                default: log(`Erreur : ${cmd} inconnu`, 'red-400');
             }
             save();
         }
 
+        // NAVIGATION & CONTEXTE
         function switchContext(ctx) {
             curCtx = ctx;
             document.querySelectorAll('#ctx-work, #ctx-perso').forEach(b => b.classList.remove('mode-active'));
@@ -155,8 +159,50 @@
             document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.getElementById('btn-' + id).classList.add('active');
+            if(id === 'calendar') renderCalendar();
             refresh();
         }
+
+        // CALENDRIER RÉEL
+        function renderCalendar() {
+            const grid = document.getElementById('cal-grid');
+            const title = document.getElementById('cal-title');
+            grid.innerHTML = '';
+            
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            title.innerText = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(currentMonth);
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div class="bg-gray-50/50 calendar-day"></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = day === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+                grid.innerHTML += `
+                    <div class="bg-white p-2 calendar-day border-l border-t flex flex-col items-end">
+                        <span class="text-xs ${isToday ? 'bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded-full font-bold' : 'text-gray-400'}">${day}</span>
+                    </div>`;
+            }
+        }
+        function changeMonth(v) { currentMonth.setMonth(currentMonth.getMonth() + v); renderCalendar(); }
+
+        // PROGRESSION & HORLOGE
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+            
+            // Progression 08h00 - 20h00
+            const start = 8, end = 20;
+            const currentHour = now.getHours() + now.getMinutes() / 60;
+            let progress = ((currentHour - start) / (end - start)) * 100;
+            progress = Math.max(0, Math.min(100, progress));
+            document.getElementById('day-progress').style.width = progress + '%';
+        }
+        setInterval(updateTime, 1000); updateTime();
 
         function refresh() {
             const bal = db[curCtx].finance.reduce((s, x) => s + x.val, 0);
@@ -164,21 +210,10 @@
             document.getElementById('dash-tasks').innerHTML = db[curCtx].tasks.filter(t => !t.done).slice(0,3).map(t => `<div class="p-2 bg-gray-50 rounded"> ${t.text}</div>`).join('');
             document.getElementById('dash-note-preview').innerText = db[curCtx].notes.substring(0, 150) + "...";
             document.getElementById('note-area').value = db[curCtx].notes;
-            
-            // Sync Todo List page
             if(document.getElementById('todo').classList.contains('active')) {
                 document.getElementById('full-todo-list').innerHTML = db[curCtx].tasks.map((t, i) => `<div class="card p-3 flex justify-between"><span>${t.text}</span><button onclick="db['${curCtx}'].tasks.splice(${i},1); save();">×</button></div>`).join('');
             }
         }
-
-        function saveNotes() { db[curCtx].notes = document.getElementById('note-area').value; save(); }
-
-        // CLOCK
-        setInterval(() => {
-            const n = new Date();
-            document.getElementById('clock').innerText = n.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('full-date').innerText = n.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-        }, 1000);
 
         refresh();
     </script>
